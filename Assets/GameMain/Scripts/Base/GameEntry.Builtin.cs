@@ -203,7 +203,6 @@ namespace Tower{
             FileSystem = UnityGameFramework.Runtime.GameEntry.GetComponent<FileSystemComponent>();
             Fsm = UnityGameFramework.Runtime.GameEntry.GetComponent<FsmComponent>();
             Localization = UnityGameFramework.Runtime.GameEntry.GetComponent<LocalizationComponent>();
-            Network = UnityGameFramework.Runtime.GameEntry.GetComponent<NetworkComponent>();
             ObjectPool = UnityGameFramework.Runtime.GameEntry.GetComponent<ObjectPoolComponent>();
             Procedure = UnityGameFramework.Runtime.GameEntry.GetComponent<ProcedureComponent>();
             Resource = UnityGameFramework.Runtime.GameEntry.GetComponent<ResourceComponent>();

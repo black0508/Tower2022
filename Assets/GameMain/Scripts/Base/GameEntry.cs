@@ -10,6 +10,11 @@ namespace Tower{
     /// </summary>
     public partial class GameEntry : MonoBehaviour
     {
+        void Awake()
+        {
+            DontDestroyOnLoad(gameObject);
+        }
+
         void Start()
         {
             // 初始化所有游戏组件

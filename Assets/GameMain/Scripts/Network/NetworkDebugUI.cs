@@ -5,16 +5,10 @@ namespace Tower
 {
     /// <summary>
     /// 调试用 GUI 面板：Editor 中画按钮启动 Server / Client / Host。
-    /// 挂在场景里的 [Network] 物体上。
     /// </summary>
     public class NetworkDebugUI : MonoBehaviour
     {
-        private NetworkManager manager;
-
-        private void Awake()
-        {
-            manager = GetComponent<NetworkManager>();
-        }
+        private GameNetworkManager Manager => GameEntry.NetManager;
 
         private void OnGUI()
         {
@@ -24,35 +18,32 @@ namespace Tower
 
             if (!NetworkClient.isConnected && !NetworkServer.active)
             {
-                // 未连接状态：显示启动按钮
                 GUILayout.Label("=== Network Debug ===");
 
                 if (GUILayout.Button("Start Server", GUILayout.Height(40)))
                 {
-                    manager.StartServer();
+                    Manager.StartServer();
                     Debug.Log("[NetworkDebugUI] Server started");
                 }
 
                 if (GUILayout.Button("Start Client", GUILayout.Height(40)))
                 {
-                    manager.StartClient();
+                    Manager.StartClient();
                     Debug.Log("[NetworkDebugUI] Client started");
                 }
 
                 if (GUILayout.Button("Start Host", GUILayout.Height(40)))
                 {
-                    manager.StartHost();
+                    Manager.StartHost();
                     Debug.Log("[NetworkDebugUI] Host started (Server + Client)");
                 }
             }
             else
             {
-                // 已连接状态：显示状态 + Stop 按钮
                 GUILayout.Label("=== Network Debug ===");
                 GUILayout.Label(NetworkServer.active
                     ? "Server: Running"
                     : "Server: Stopped");
-
                 GUILayout.Label(NetworkClient.isConnected
                     ? "Client: Connected"
                     : "Client: Disconnected");
@@ -61,16 +52,15 @@ namespace Tower
                 {
                     if (NetworkServer.active && NetworkClient.active)
                     {
-                        // Host 模式：同时停服务器和客户端
-                        manager.StopHost();
+                        Manager.StopHost();
                     }
                     else if (NetworkServer.active)
                     {
-                        manager.StopServer();
+                        Manager.StopServer();
                     }
                     else if (NetworkClient.isConnected)
                     {
-                        manager.StopClient();
+                        Manager.StopClient();
                     }
                     Debug.Log("[NetworkDebugUI] Stopped");
                 }

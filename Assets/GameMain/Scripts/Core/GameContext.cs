@@ -18,7 +18,7 @@ namespace Tower
         public static bool IsHost => NetworkServer.active && NetworkClient.active;
 
         /// <summary>独立服务器（无本地客户端）</summary>
-        public static bool IsDedicatedServer => NetworkServer.active && !NetworkClient.active;
+        public static bool IsDS => NetworkServer.active && !NetworkClient.active;
 
         /// <summary>纯客户端（未运行服务器）</summary>
         public static bool IsPureClient => !NetworkServer.active && NetworkClient.active;
