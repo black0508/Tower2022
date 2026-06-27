@@ -358,23 +358,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &389707546
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 389966408}
-  - component: {fileID: 395718656}
-  m_Layer: 0
-  m_Name: UI
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!1 &389711978
 GameObject:
   m_ObjectHideFlags: 0
@@ -404,23 +387,6 @@ GameObject:
   - component: {fileID: 395717956}
   m_Layer: 0
   m_Name: Event
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!1 &389733844
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 390064960}
-  - component: {fileID: 395763486}
-  m_Layer: 0
-  m_Name: Sound
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -595,25 +561,8 @@ Transform:
   - {fileID: 389967808}
   - {fileID: 389948814}
   - {fileID: 390038756}
-  - {fileID: 390064960}
-  - {fileID: 389966408}
   - {fileID: 389945814}
   m_Father: {fileID: 656740409}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &389966408
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 389707546}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 389965424}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &389967382
 Transform:
@@ -742,21 +691,6 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 389632646}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 389965424}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &390064960
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 389733844}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -898,33 +832,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7daf8320a3d04046b4bbd7c47307914, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &395718656
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 389707546}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a1ef15380caaed42b55022cadc93649, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EnableOpenUIFormSuccessEvent: 1
-  m_EnableOpenUIFormFailureEvent: 1
-  m_EnableOpenUIFormUpdateEvent: 0
-  m_EnableOpenUIFormDependencyAssetEvent: 0
-  m_EnableCloseUIFormCompleteEvent: 1
-  m_InstanceAutoReleaseInterval: 60
-  m_InstanceCapacity: 16
-  m_InstanceExpireTime: 60
-  m_InstancePriority: 0
-  m_InstanceRoot: {fileID: 0}
-  m_UIFormHelperTypeName: UnityGameFramework.Runtime.DefaultUIFormHelper
-  m_CustomUIFormHelper: {fileID: 0}
-  m_UIGroupHelperTypeName: UnityGameFramework.Runtime.DefaultUIGroupHelper
-  m_CustomUIGroupHelper: {fileID: 0}
-  m_UIGroups: []
 --- !u!114 &395727758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1000,29 +907,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_EnableLoadSceneUpdateEvent: 1
   m_EnableLoadSceneDependencyAssetEvent: 1
---- !u!114 &395763486
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 389733844}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed5533de69c4e5a4dabc7c23fce1fa98, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EnablePlaySoundUpdateEvent: 0
-  m_EnablePlaySoundDependencyAssetEvent: 0
-  m_InstanceRoot: {fileID: 0}
-  m_AudioMixer: {fileID: 0}
-  m_SoundHelperTypeName: UnityGameFramework.Runtime.DefaultSoundHelper
-  m_CustomSoundHelper: {fileID: 0}
-  m_SoundGroupHelperTypeName: UnityGameFramework.Runtime.DefaultSoundGroupHelper
-  m_CustomSoundGroupHelper: {fileID: 0}
-  m_SoundAgentHelperTypeName: UnityGameFramework.Runtime.DefaultSoundAgentHelper
-  m_CustomSoundAgentHelper: {fileID: 0}
-  m_SoundGroups: []
 --- !u!114 &395771874
 MonoBehaviour:
   m_ObjectHideFlags: 0

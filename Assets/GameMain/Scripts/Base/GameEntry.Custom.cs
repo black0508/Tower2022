@@ -9,11 +9,11 @@ namespace Tower
     public partial class GameEntry : MonoBehaviour
     {
         /// <summary>Mirror 网络管理器</summary>
-        public static GameNetworkManager NetManager { get; private set; }
+        public static GameNetworkManager NetWork { get; private set; }
 
         private static void InitCustomComponents()
         {
-            NetManager = FindObjectOfType<GameNetworkManager>();
+            NetWork = FindObjectOfType<GameNetworkManager>();
             // 后续新增自定义组件在此添加
         }
     }
