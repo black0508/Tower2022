@@ -45,11 +45,14 @@
         "Build/": true,
         "Library/": true,
         "library/": true,
+        "Logs/": true,
         "obj/": true,
         "Obj/": true,
         "ProjectSettings/": true,
         "temp/": true,
-        "Temp/": true
+        "Temp/": true,
+        "UserSettings/": true,
+        "**/*.txt": true
     },
     "dotnet.defaultSolution": "Tower2022.sln"
 }
