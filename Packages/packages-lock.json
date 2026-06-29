@@ -1,5 +1,22 @@
 {
   "dependencies": {
+    "com.boxqkrtm.ide.cursor": {
+      "version": "file:E:/Unity/Plugins/com.unity.ide.cursor-2.0.27/com.unity.ide.cursor-2.0.27",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.9"
+      }
+    },
+    "com.unity.ai.navigation": {
+      "version": "1.1.7",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.ai": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.collab-proxy": {
       "version": "2.12.4",
       "depth": 0,

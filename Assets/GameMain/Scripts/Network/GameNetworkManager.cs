@@ -8,6 +8,18 @@ namespace Tower
     /// </summary>
     public class GameNetworkManager : NetworkManager
     {
+        public override void OnStartServer()
+        {
+            base.OnStartServer();
+            Debug.Log("[Server] Server started");
+
+            var spawner = FindObjectOfType<EnemySpawner>();
+            if (spawner != null)
+                spawner.StartSpawning();
+            else
+                Debug.LogWarning("[Server] No EnemySpawner found in scene.");
+        }
+
         // ========== Server 回调 ==========
 
         public override void OnServerConnect(NetworkConnectionToClient conn)
@@ -24,7 +36,9 @@ namespace Tower
 
         public override void OnClientConnect()
         {
-            Debug.Log("[Client] Connected to server!");
+            // 必须调用 base：内部会 NetworkClient.Ready()，否则客户端收不到 Spawn 消息
+            base.OnClientConnect();
+            Debug.Log("[Client] Connected to server! (ready=" + NetworkClient.ready + ")");
         }
 
         public override void OnClientDisconnect()

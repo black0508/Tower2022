@@ -54,5 +54,20 @@
         "UserSettings/": true,
         "**/*.txt": true
     },
-    "dotnet.defaultSolution": "Tower2022.sln"
+    "dotnet.defaultSolution": "Tower2022.sln",
+    "dotrush.roslyn.projectOrSolutionFiles": [
+        "e:\\Unity\\Project\\Tower2022\\Assets\\ThirdParty\\GF\\UnityGameFramework\\Libraries\\GameFramework-master\\GameFramework.sln",
+        "e:\\Unity\\Project\\Tower2022\\Tower2022.sln",
+        "e:\\Unity\\Project\\Tower2022\\Assembly-CSharp-Editor.csproj",
+        "e:\\Unity\\Project\\Tower2022\\Assembly-CSharp.csproj",
+        "e:\\Unity\\Project\\Tower2022\\GameFramework.csproj",
+        "e:\\Unity\\Project\\Tower2022\\Assets\\ThirdParty\\GF\\UnityGameFramework\\Libraries\\GameFramework-master\\GameFramework\\GameFramework.csproj",
+        "e:\\Unity\\Project\\Tower2022\\kcp2k.csproj",
+        "e:\\Unity\\Project\\Tower2022\\Mirror.Authenticators.csproj",
+        "e:\\Unity\\Project\\Tower2022\\Mirror.CompilerSymbols.csproj",
+        "e:\\Unity\\Project\\Tower2022\\Mirror.Components.csproj",
+        "e:\\Unity\\Project\\Tower2022\\Mirror.csproj",
+        "e:\\Unity\\Project\\Tower2022\\Mirror.Editor.csproj",
+        "e:\\Unity\\Project\\Tower2022\\Mirror.Transports.csproj"
+    ]
 }

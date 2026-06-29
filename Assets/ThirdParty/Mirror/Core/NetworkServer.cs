@@ -346,7 +346,7 @@ namespace Mirror
         // default ready handler.
         static void OnClientReadyMessage(NetworkConnectionToClient conn, ReadyMessage msg)
         {
-            // Debug.Log($"Default handler for ready message from {conn}");
+            Debug.Log($"Default handler for ready message from {conn}");
             SetClientReady(conn);
         }
 
