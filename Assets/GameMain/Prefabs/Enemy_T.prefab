@@ -163,10 +163,9 @@ MonoBehaviour:
   syncInterval: 0
   hp: 100
   maxHp: 100
-  baseSpeed: 3
+  baseSpeed: 2
   baseTag: Tower.Path.End
   reachBaseDistance: 1
-  debugDirectMove: 1
 --- !u!114 &7084865205404923407
 MonoBehaviour:
   m_ObjectHideFlags: 0
