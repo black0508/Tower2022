@@ -9,7 +9,6 @@ namespace Tower
         [SyncVar] public uint targetNetId;
         [SyncVar] public Vector3 startPos;
         [SyncVar] public float speed = 20f;
-        [SyncVar(hook = nameof(OnHitChanged))] public bool hasHitVisually;
 
         [Header("引用")]
         public MeshRenderer meshRenderer;
@@ -51,6 +50,8 @@ namespace Tower
                 return;
             }
 
+            // 追踪目标位置
+            // TODO: 后续使用DOTWEEN或者手写一个插值来平滑移动
             transform.position = Vector3.MoveTowards(
                 transform.position, targetPos, speed * Time.deltaTime);
 
@@ -58,16 +59,16 @@ namespace Tower
             if (moveDir.sqrMagnitude > 0.001f)
                 transform.rotation = Quaternion.LookRotation(moveDir);
 
+            // 到达
             if (Vector3.Distance(transform.position, targetPos) >= 0.3f) return;
 
             if (isServer) {
-                if (serverTarget != null && serverTarget.hp > 0) {
+                if (serverTarget != null && serverTarget.hp > 0)
                     serverTarget.TakeDamage(damage);
-                    hasHitVisually = true;
-                }
+                RpcConfirmHit();  // 通知所有客户端假命中
                 NetworkServer.Destroy(gameObject);
             } else {
-                HitVisually();
+                HitVisually();  // 客户端本地预测
             }
         }
 
@@ -99,22 +100,22 @@ namespace Tower
             return false;
         }
 
+        [ClientRpc]
+        void RpcConfirmHit()
+        {
+            HitVisually();
+        }
+
         void HitVisually()
         {
             if (hasHitLocally) return;
             hasHitLocally = true;
 
+            // 命中后，隐藏Mesh和拖尾
             if (meshRenderer != null) meshRenderer.enabled = false;
-            if (isServer) return;
-
             if (trail != null) trail.emitting = false;
             if (hitEffectPrefab != null)
                 Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
-        }
-
-        void OnHitChanged(bool oldVal, bool newVal)
-        {
-            if (newVal && !hasHitLocally) HitVisually();
         }
     }
 }

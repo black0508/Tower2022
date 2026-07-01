@@ -11,10 +11,27 @@ namespace Tower
         /// <summary>Mirror 网络管理器</summary>
         public static GameNetworkManager NetWork { get; private set; }
 
+        /// <summary>建造槽位管理</summary>
+        public static BuildComponent BuildSlot { get; private set; }
+
+        /// <summary>全局游戏状态（GameState Spawn 后由自身注册）</summary>
+        public static GameState State { get; private set; }
+
+        internal static void RegisterState(GameState state)
+        {
+            State = state;
+        }
+
+        internal static void UnregisterState(GameState state)
+        {
+            if (State == state)
+                State = null;
+        }
+
         private static void InitCustomComponents()
         {
             NetWork = FindObjectOfType<GameNetworkManager>();
-            // 后续新增自定义组件在此添加
+            BuildSlot = UnityGameFramework.Runtime.GameEntry.GetComponent<BuildComponent>();
         }
     }
 }

@@ -385,6 +385,15 @@ public class Projectile : NetworkBehaviour
 
 ---
 
+### Day 3 已知待优化项（Day 4 修复）
+
+- **hasHitVisually SyncVar + hook 是次优实现**——事件性质的通知不应该用状态位。
+  Day 4 Step 0 会把它改成 ClientRpc（`RpcConfirmHit`），本地预测 + Rpc 兜底。
+  改完后 Projectile.cs 会更简洁，SyncVar 只保留初始化数据（targetNetId / startPos / speed）。
+- **Projectile 只支持追踪弹**，方向弹/AOE 火球等无法直接扩展——推迟到 W2 加 Frost 塔时再抽象成 `ProjectileBehavior` 基类（由具体推抽象，避免过度设计）。
+
+---
+
 ## Day 4 — 玩家建塔 + 共享金币（约5小时）
 
 ### 目标
@@ -429,7 +438,133 @@ public class Projectile : NetworkBehaviour
 
 ---
 
-### Step 1：BuildSlot Prefab + 场景手摆（30分钟）
+### Step 0：Projectile 重构 ClientRpc（前置任务，20分钟）
+
+**动机**：Day 3 的 `hasHitVisually` SyncVar + hook 是次优实现。事件性质的通知应该用 ClientRpc，不应该用状态位。
+
+**改动范围**：仅 `Projectile.cs`。Tower.cs 不动。
+
+#### 0.1 修改 Projectile.cs
+
+`Assets/Scripts/Gameplay/Projectile/Projectile.cs`：
+
+```csharp
+using Mirror;
+using UnityEngine;
+
+public class Projectile : NetworkBehaviour
+{
+    [Header("Sync State (仅初始化数据)")]
+    [SyncVar] public uint targetNetId;
+    [SyncVar] public Vector3 startPos;
+    [SyncVar] public float speed = 20f;
+    // ❌ 删除 hasHitVisually SyncVar + hook
+
+    [Header("References")]
+    public MeshRenderer meshRenderer;
+    public TrailRenderer trail;
+    public GameObject hitEffectPrefab;
+
+    [Header("Safety")]
+    public float maxLifetime = 5f;
+    public float maxRange = 50f;
+
+    [HideInInspector] public int damage;
+    [HideInInspector] public Enemy serverTarget;
+
+    private float lifetime;
+    private bool hasHitLocally;
+
+    public override void OnStartClient()
+    {
+        if (!isServer) transform.position = startPos;
+    }
+
+    void Update()
+    {
+        // 三层保险
+        lifetime += Time.deltaTime;
+        if (lifetime > maxLifetime) {
+            if (isServer) NetworkServer.Destroy(gameObject);
+            return;
+        }
+        if (Vector3.Distance(transform.position, startPos) > maxRange) {
+            if (isServer) NetworkServer.Destroy(gameObject);
+            return;
+        }
+
+        if (hasHitLocally) return;
+
+        // 找目标位置
+        Vector3 targetPos;
+        if (isServer) {
+            if (serverTarget == null || serverTarget.hp <= 0) {
+                NetworkServer.Destroy(gameObject);
+                return;
+            }
+            targetPos = serverTarget.transform.position;
+        } else {
+            if (!NetworkClient.spawned.TryGetValue(targetNetId, out var targetIdentity)) {
+                HitVisually();  // 目标已消失，本地立即假命中
+                return;
+            }
+            targetPos = targetIdentity.transform.position;
+        }
+
+        // 追踪
+        transform.position = Vector3.MoveTowards(
+            transform.position, targetPos, speed * Time.deltaTime);
+
+        // 到达
+        if (Vector3.Distance(transform.position, targetPos) < 0.3f) {
+            if (isServer) {
+                serverTarget.TakeDamage(damage);
+                RpcConfirmHit();               // ✅ 用 Rpc 通知所有客户端假命中
+                NetworkServer.Destroy(gameObject);
+            } else {
+                HitVisually();                 // 客户端本地预测
+            }
+        }
+    }
+
+    [ClientRpc]
+    void RpcConfirmHit()
+    {
+        HitVisually();  // 内部有 hasHitLocally 判重，重复调用无害
+    }
+
+    void HitVisually()
+    {
+        if (hasHitLocally) return;
+        hasHitLocally = true;
+
+        if (meshRenderer != null) meshRenderer.enabled = false;
+        if (trail != null) trail.emitting = false;
+        if (hitEffectPrefab != null)
+            Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+    }
+    // ❌ 删除 OnHitChanged hook
+}
+```
+
+#### 0.2 关键变化
+
+- ✅ 删除 `[SyncVar] public bool hasHitVisually`
+- ✅ 删除 `void OnHitChanged(bool oldVal, bool newVal)` hook
+- ✅ 新增 `[ClientRpc] void RpcConfirmHit()`
+- ✅ 服务端命中时改调 `RpcConfirmHit()`
+
+#### 0.3 验证
+
+跑 Day 3 场景：
+- 塔开火 → 子弹追踪 → 命中 → 敌人扣血
+- 客户端子弹立即假命中（本地预测，视觉响应快）
+- Console 无异常
+- 双端表现和之前一致（用户视角看不出区别）
+
+---
+
+### 目标
 
 #### 1.1 创建 BuildSlot Prefab
 

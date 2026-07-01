@@ -10,6 +10,7 @@ namespace Tower
         [SyncVar] public int hp = 100;
         public int maxHp = 100;
         public float baseSpeed = 3f;
+        [SerializeField] int goldReward = 10;
 
         [Header("Path")]
         [SerializeField] private string baseTag = "Tower.Path.End";
@@ -74,6 +75,7 @@ namespace Tower
             if (hp <= 0)
             {
                 Debug.Log($"[Server] Enemy {netId} died");
+                GameEntry.Event.Fire(this, EnemyKilledEventArgs.Create(goldReward));
                 NetworkServer.Destroy(gameObject);
             }
         }

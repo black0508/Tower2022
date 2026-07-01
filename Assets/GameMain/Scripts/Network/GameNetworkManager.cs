@@ -8,16 +8,42 @@ namespace Tower
     /// </summary>
     public class GameNetworkManager : NetworkManager
     {
+        [SerializeField] GameState gameStatePrefab;
+
         public override void OnStartServer()
         {
             base.OnStartServer();
             Debug.Log("[Server] Server started");
+
+            SpawnGameState();
 
             var spawner = FindObjectOfType<EnemySpawner>();
             if (spawner != null)
                 spawner.StartSpawning();
             else
                 Debug.LogWarning("[Server] No EnemySpawner found in scene.");
+        }
+
+        void SpawnGameState()
+        {
+            if (GameEntry.State != null) return;
+            if (gameStatePrefab == null)
+            {
+                Debug.LogError("[Server] GameState prefab not assigned on GameNetworkManager.");
+                return;
+            }
+
+            var entry = FindObjectOfType<GameEntry>();
+            if (entry == null)
+            {
+                Debug.LogError("[Server] GameEntry not found, cannot spawn GameState.");
+                return;
+            }
+
+            var state = Instantiate(gameStatePrefab, entry.transform);
+            state.name = "GameState";
+            NetworkServer.Spawn(state.gameObject);
+            Debug.Log("[Server] GameState spawned under GameEntry.");
         }
 
         // ========== Server 回调 ==========
