@@ -4,17 +4,25 @@ using UnityGameFramework.Runtime;
 
 namespace Tower
 {
+    /// <summary>
+    /// 建造管理：缓存场景槽位、客户端高亮、服务端按坐标查槽位。
+    /// </summary>
     public class BuildComponent : GameFrameworkComponent
     {
         private List<BuildSlot> cachedSlots;
         private BuildSlot currentHover;
+
+        [Tooltip("只对此 Layer 射线检测槽位，避免被地面/其他 collider 抢先命中。0 表示不限制。")]
+        [SerializeField] LayerMask slotMask;
+
+        public LayerMask SlotMask => slotMask;
 
         public IReadOnlyList<BuildSlot> GetAllSlots(bool forceRefresh = false)
         {
             if (cachedSlots == null || forceRefresh)
             {
                 cachedSlots = new List<BuildSlot>(FindObjectsOfType<BuildSlot>());
-                Log.Info($"[BuildSlot] Scanned {cachedSlots.Count} slots");
+                Log.Info($"[Build] Scanned {cachedSlots.Count} slots");
             }
             return cachedSlots;
         }
@@ -47,13 +55,11 @@ namespace Tower
         {
             if (currentHover == newHover) return;
 
-            // 上一帧悬停的 Slot 恢复
             if (currentHover != null)
                 currentHover.SetVisualState(BuildSlotVisualState.Buildable);
 
             currentHover = newHover;
 
-            // 新悬停 Slot 加深
             if (currentHover != null)
                 currentHover.SetVisualState(BuildSlotVisualState.Hover);
         }

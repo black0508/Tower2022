@@ -1,7 +1,6 @@
 using GameFramework.Event;
 using Mirror;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Tower
 {
@@ -13,31 +12,23 @@ namespace Tower
         [SyncVar(hook = nameof(OnGoldChanged))]
         public int sharedGold = 100;
 
-        public UnityEvent<int> onGoldChanged = new();
-
-        bool eventSubscribed;
-
         public override void OnStartServer()
         {
             GameEntry.RegisterState(this);
-            GameEntry.Event.Subscribe(EventCommon.EnemyKilled, OnEnemyKilled);
-            eventSubscribed = true;
+            GameEntry.Event.Subscribe(EnemyKilledEventArgs.EventId, OnEnemyKilled);
         }
 
         public override void OnStartClient()
         {
             GameEntry.RegisterState(this);
+            if (GameEntry.UI != null && !GameEntry.UI.HasUIForm(UIFormId.GamingForm))
+                GameEntry.UI.OpenUIForm(UIFormId.GamingForm);
         }
 
         void OnDestroy()
         {
-            if (eventSubscribed)
-            {
-                GameEntry.Event.Unsubscribe(EventCommon.EnemyKilled, OnEnemyKilled);
-                eventSubscribed = false;
-            }
-
             GameEntry.UnregisterState(this);
+            GameEntry.Event.Unsubscribe(EnemyKilledEventArgs.EventId, OnEnemyKilled); 
         }
 
         void OnEnemyKilled(object sender, GameEventArgs e)
@@ -57,7 +48,7 @@ namespace Tower
 
         void OnGoldChanged(int oldVal, int newVal)
         {
-            onGoldChanged?.Invoke(newVal);
+            GameEntry.Event.Fire(this, SharedGoldChangedEventArgs.Create(newVal));
         }
     }
 }

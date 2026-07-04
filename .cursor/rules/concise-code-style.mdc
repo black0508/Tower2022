@@ -1,0 +1,45 @@
+---
+description: 保持代码简洁，避免重复方法/工厂
+alwaysApply: true
+---
+
+# 简洁代码约定
+
+## 合并而非复制
+
+成功/失败、进入/退出等同型逻辑，用**一个方法 + 默认参数**，不要拆成两个几乎一样的方法。
+
+> **例外**：Mirror 的 `[Command]` / `[ClientRpc]` / `[TargetRpc]` **不能有可选参数**，调用处必须显式传参。
+
+```csharp
+// ❌ 不要
+void TargetBuildSucceeded(...) { ... }
+void TargetBuildFailed(..., string reason) { ... }
+
+// ✅ 要（单个 Rpc，无默认参数）
+void TargetBuildResult(..., bool success, string reason) { ... }
+// 成功：TargetBuildResult(conn, true, null)
+// 失败：TargetBuildResult(conn, false, reason)
+```
+
+```csharp
+// ❌ 不要
+CreateSuccess() / CreateFailure(reason)
+
+// ✅ 要
+Create(bool success = true, string reason = null)
+```
+
+## 事件参数
+
+- 用 `ReferencePool.Acquire<T>()`，禁止 `new`
+- `Clear()` 重置字段，交给 GF 回收
+
+## 订阅
+
+- OnOpen/OnEnable 里直接 `Subscribe`，OnClose/OnDisable 里 `Unsubscribe`
+- 不需要 `xxxSubscribed` flag 和单独的 Subscribe/Unsubscribe 包装方法
+
+## Unity 资产
+
+- 不手动创建、修改或删除 `.meta` 文件

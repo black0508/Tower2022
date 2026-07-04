@@ -17,8 +17,15 @@ namespace Tower
 
         public bool IsOccupied => occupiedByTowerNetId != 0;
 
+        void Awake()
+        {
+            if (meshRenderer == null)
+                meshRenderer = GetComponentInChildren<MeshRenderer>();
+        }
+
         void Start()
         {
+            if (meshRenderer == null) return;
             // 默认隐藏（仅在建造模式下显示）
             meshRenderer.enabled = false;
         }
@@ -26,11 +33,13 @@ namespace Tower
         void OnOccupiedChanged(uint oldVal, uint newVal)
         {
             // 占用状态变化时刷新视觉（如果当前在建造模式下）
-            // 由 BuildSlotComponent 统一管理刷新
+            // 由 BuildComponent 统一管理刷新
         }
 
         public void SetVisualState(BuildSlotVisualState state)
         {
+            if (meshRenderer == null) return;
+
             switch (state)
             {
                 case BuildSlotVisualState.Hidden:

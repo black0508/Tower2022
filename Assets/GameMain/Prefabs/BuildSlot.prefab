@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4199718322965982650}
   - component: {fileID: 7032199369379518504}
   - component: {fileID: 2839417853935657}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,7 +116,7 @@ GameObject:
   - component: {fileID: 1927654567797639}
   - component: {fileID: 459614158139657734}
   - component: {fileID: 8313109254099145317}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BuildSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}

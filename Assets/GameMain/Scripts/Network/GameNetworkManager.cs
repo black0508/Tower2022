@@ -70,6 +70,16 @@ namespace Tower
         public override void OnClientDisconnect()
         {
             Debug.Log("[Client] Disconnected from server.");
+            TryCloseGamingForm();
+        }
+
+        static void TryCloseGamingForm()
+        {
+            if (GameEntry.UI == null) return;
+
+            var form = GameEntry.UI.GetUIForm(UIFormId.GamingForm);
+            if (form != null)
+                GameEntry.UI.CloseUIForm(form);
         }
 
         public override void OnClientError(TransportError error, string reason)

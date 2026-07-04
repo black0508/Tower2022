@@ -1,3 +1,4 @@
+using GameFramework;
 using GameFramework.Event;
 
 namespace Tower
@@ -7,7 +8,7 @@ namespace Tower
     /// </summary>
     public sealed class EnemyKilledEventArgs : GameEventArgs
     {
-        public static readonly int EventId = EventCommon.EnemyKilled;
+        public static readonly int EventId = typeof(EnemyKilledEventArgs).GetHashCode();
 
         public int GoldAmount { get; private set; }
 
@@ -15,7 +16,7 @@ namespace Tower
 
         public static EnemyKilledEventArgs Create(int goldAmount)
         {
-            var args = new EnemyKilledEventArgs();
+            var args = ReferencePool.Acquire<EnemyKilledEventArgs>();
             args.GoldAmount = goldAmount;
             return args;
         }

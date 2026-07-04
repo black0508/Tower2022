@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 375953736796289127}
   - component: {fileID: -550657016578076196}
+  - component: {fileID: 3342929325422710109}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -49,3 +50,22 @@ MonoBehaviour:
   serverOnly: 0
   visibility: 1
   hasSpawned: 0
+--- !u!114 &3342929325422710109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1016594075336366537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af14fb8b12087b441a16acc193f7beae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMethod: 0
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  playerId: 0
+  playerName: Player
+  cannonTowerPrefab: {fileID: 5893986318789320895, guid: 47c2ae5144fd2ef46ae87d3757fce3ce, type: 3}

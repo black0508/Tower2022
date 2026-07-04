@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup Condition="'$(DotRushDesignTimeBuild)' == 'true'">
+    <NoStdLib>false</NoStdLib>
+    <NoConfig>false</NoConfig>
+    <DisableImplicitFrameworkReferences>false</DisableImplicitFrameworkReferences>
+  </PropertyGroup>
+</Project>

@@ -20,7 +20,7 @@ namespace Tower
     {
         public static int? OpenUIForm(this UIComponent uiComponent, UIFormId uiFormId,object userData = null)
         {
-            ClientConfigComponent clientConfigComponent = GameEntry.ClientConfig;
+            var clientConfigComponent = (ClientConfigComponent)GameEntry.GameConfig;
             UIConfigData uiConfigData = clientConfigComponent.GetUIConfigData(uiFormId);
             string assetName = AssetUtility.GetUIFormAsset(uiConfigData.AssetName);
             return uiComponent.OpenUIForm(assetName,uiConfigData.GroupName,uiConfigData.PauseCoveredUIForm,userData);
@@ -32,7 +32,7 @@ namespace Tower
 
         public static bool HasUIForm(this UIComponent uiComponent, UIFormId uiFormId)
         {
-            ClientConfigComponent clientConfigComponent = GameEntry.ClientConfig;
+            var clientConfigComponent = (ClientConfigComponent)GameEntry.GameConfig;
             UIConfigData uiConfigData = clientConfigComponent.GetUIConfigData(uiFormId);
             string assetName = AssetUtility.GetUIFormAsset(uiConfigData.AssetName);
             return uiComponent.HasUIForm(assetName);
@@ -40,7 +40,7 @@ namespace Tower
 
         public static UGUIForm GetUIForm(this UIComponent uiComponent, UIFormId uiFormId)
         {
-            ClientConfigComponent clientConfigComponent = GameEntry.ClientConfig;
+            var clientConfigComponent = (ClientConfigComponent)GameEntry.GameConfig;
             UIConfigData uiConfigData = clientConfigComponent.GetUIConfigData(uiFormId);
             
             string assetName = AssetUtility.GetUIFormAsset(uiConfigData.AssetName);

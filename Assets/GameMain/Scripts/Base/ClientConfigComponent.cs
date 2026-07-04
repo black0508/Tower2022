@@ -1,11 +1,10 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityGameFramework.Runtime;
 
 namespace Tower
 {
-    //TODO: 后期采用自动资源加载方式而不是拖拽方式
-    public class ClientConfigComponent : GameFrameworkComponent
+    /// <summary>客户端侧配置：UI 映射等仅客户端需要的资产。</summary>
+    public class ClientConfigComponent : GameConfigComponent
     {
         [LabelText("UI配置")]
         public UIConfig uIConfig;
@@ -14,6 +13,5 @@ namespace Tower
         {
             return uIConfig.GetUIConfigData(formId);
         }
-    
     }
 }
