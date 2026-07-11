@@ -14,7 +14,7 @@ namespace Tower
 
         GamePlayer player;
         Camera mainCam;
-        BuildState state = BuildState.Idle;
+        BuildState buildState = BuildState.Idle;
         int selectedTowerConfigId = -1;
 
         public void InitLocal(GamePlayer localPlayer)
@@ -27,7 +27,7 @@ namespace Tower
 
         void OnDestroy()
         {
-            if (state == BuildState.Building)
+            if (buildState == BuildState.Building)
                 ExitBuildMode();
 
             GameEntry.Event.Unsubscribe(TowerCardClickedEventArgs.EventId, OnTowerCardClicked);
@@ -38,10 +38,14 @@ namespace Tower
         {
             if (player == null) return;
 
+            var gameState = GameEntry.State;
+            if (gameState != null && gameState.phase == GamePhase.Preparing && Input.GetKeyDown(KeyCode.Space))
+                player.CmdSetReady(!player.isReady);
+
             if (Input.GetKeyDown(KeyCode.B))
                 ToggleBuildMode();
 
-            if (state != BuildState.Building) return;
+            if (buildState != BuildState.Building) return;
 
             if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1))
             {
@@ -57,7 +61,7 @@ namespace Tower
 
         void ToggleBuildMode()
         {
-            if (state == BuildState.Idle) EnterBuildMode();
+            if (buildState == BuildState.Idle) EnterBuildMode();
             else ExitBuildMode();
         }
 
@@ -69,14 +73,14 @@ namespace Tower
                 return;
             }
 
-            state = BuildState.Building;
+            buildState = BuildState.Building;
             GameEntry.Build.HighlightAllBuildable();
             GameEntry.Event.Fire(this, BuildModeChangedEventArgs.Create(true));
         }
 
         void ExitBuildMode()
         {
-            state = BuildState.Idle;
+            buildState = BuildState.Idle;
             GameEntry.Build?.ClearHighlight();
             SetSelectedTower(-1);
             GameEntry.Event.Fire(this, BuildModeChangedEventArgs.Create(false));
@@ -84,7 +88,7 @@ namespace Tower
 
         void OnTowerCardClicked(object sender, GameEventArgs e)
         {
-            if (state != BuildState.Building || e is not TowerCardClickedEventArgs args) return;
+            if (buildState != BuildState.Building || e is not TowerCardClickedEventArgs args) return;
 
             int configId = args.TowerInfo.TowerConfigId;
             SetSelectedTower(selectedTowerConfigId == configId ? -1 : configId);

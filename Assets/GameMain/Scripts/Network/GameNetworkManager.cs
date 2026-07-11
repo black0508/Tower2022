@@ -4,24 +4,19 @@ using UnityEngine;
 namespace Tower
 {
     /// <summary>
-    /// 自定义网络管理器：覆写连接回调以提供连接状态的日志反馈。
+    /// 自定义网络管理器：Spawn GameState，玩家由 GameState 创建。
     /// </summary>
     public class GameNetworkManager : NetworkManager
     {
+        [Header("Custom")]
         [SerializeField] GameState gameStatePrefab;
 
         public override void OnStartServer()
         {
+            autoCreatePlayer = false;
             base.OnStartServer();
             Debug.Log("[Server] Server started");
-
             SpawnGameState();
-
-            var spawner = FindObjectOfType<EnemySpawner>();
-            if (spawner != null)
-                spawner.StartSpawning();
-            else
-                Debug.LogWarning("[Server] No EnemySpawner found in scene.");
         }
 
         void SpawnGameState()
@@ -46,23 +41,28 @@ namespace Tower
             Debug.Log("[Server] GameState spawned under GameEntry.");
         }
 
-        // ========== Server 回调 ==========
-
         public override void OnServerConnect(NetworkConnectionToClient conn)
         {
+            base.OnServerConnect(conn);
             Debug.Log($"[Server] Client connected: connId={conn.connectionId}");
+
+            var state = GameEntry.State;
+            if (state == null)
+            {
+                Debug.LogError("[Server] GameState not ready, cannot spawn player.");
+                return;
+            }
+
+            state.SpawnPlayer(conn);
         }
 
         public override void OnServerDisconnect(NetworkConnectionToClient conn)
         {
-            Debug.Log($"[Server] Client disconnected: connId={conn.connectionId}");
+            base.OnServerDisconnect(conn);
         }
-
-        // ========== Client 回调 ==========
 
         public override void OnClientConnect()
         {
-            // 必须调用 base：内部会 NetworkClient.Ready()，否则客户端收不到 Spawn 消息
             base.OnClientConnect();
             Debug.Log("[Client] Connected to server! (ready=" + NetworkClient.ready + ")");
         }

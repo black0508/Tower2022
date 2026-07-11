@@ -50,9 +50,11 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   sharedGold: 100
-  onGoldChanged:
-    m_PersistentCalls:
-      m_Calls: []
+  phase: 0
+  currentWave: 0
+  betweenWavesTimer: 0
+  betweenWavesDuration: 15
+  gamePlayerPrefab: {fileID: 1016594075336366537, guid: 0228135920bd4de43a00ab441fd164db, type: 3}
 --- !u!114 &3192251348777171564
 MonoBehaviour:
   m_ObjectHideFlags: 0

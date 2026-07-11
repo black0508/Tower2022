@@ -4,21 +4,48 @@ using UnityEngine;
 namespace Tower
 {
     /// <summary>
-    /// 玩家网络对象：服务端权威建造。
+    /// 玩家网络对象：服务端权威建造与 Ready 状态。
     /// </summary>
     public class GamePlayer : NetworkBehaviour
     {
         [SyncVar] public int playerId;
         [SyncVar] public string playerName = "Player";
 
+        [SyncVar(hook = nameof(OnReadyChanged))]
+        public bool isReady;
+
         public override void OnStartServer()
         {
             playerId = (int)netId;
+            GameEntry.State?.RegisterPlayer(this);
+        }
+
+        public override void OnStartClient()
+        {
+            GameEntry.State?.RegisterPlayer(this);
         }
 
         public override void OnStartLocalPlayer()
         {
             gameObject.AddComponent<PlayerBuildModeComponent>().InitLocal(this);
+        }
+
+        void OnDestroy()
+        {
+            GameEntry.State?.UnregisterPlayer(this);
+        }
+
+        [Command]
+        public void CmdSetReady(bool ready)
+        {
+            var state = GameEntry.State;
+            if (state == null || state.phase != GamePhase.Preparing) return;
+            isReady = ready;
+        }
+
+        void OnReadyChanged(bool oldVal, bool newVal)
+        {
+            GameEntry.Event.Fire(this, PlayerReadyChangedEventArgs.Create(playerId, newVal));
         }
 
         [Command]
