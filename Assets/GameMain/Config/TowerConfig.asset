@@ -17,6 +17,7 @@ MonoBehaviour:
     SerializedBytes: 
     ReferencedUnityObjects:
     - {fileID: 5893986318789320895, guid: 47c2ae5144fd2ef46ae87d3757fce3ce, type: 3}
+    - {fileID: 5893986318789320895, guid: 982b259edab8725428d8f9b97a4dc083, type: 3}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -35,7 +36,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 1
+      Data: 2
     - Name: 
       Entry: 7
       Data: 
@@ -45,12 +46,39 @@ MonoBehaviour:
     - Name: $v
       Entry: 7
       Data: Tower.TowerDef, Assembly-CSharp
+    - Name: displayName
+      Entry: 1
+      Data: "\u666E\u901A\u5854"
     - Name: cost
       Entry: 3
       Data: 50
     - Name: prefab
       Entry: 10
       Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 2
+    - Name: $v
+      Entry: 7
+      Data: Tower.TowerDef, Assembly-CSharp
+    - Name: displayName
+      Entry: 1
+      Data: "\u706B\u5854"
+    - Name: cost
+      Entry: 3
+      Data: 100
+    - Name: prefab
+      Entry: 10
+      Data: 1
     - Name: 
       Entry: 8
       Data: 

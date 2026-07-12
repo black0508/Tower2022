@@ -7,20 +7,20 @@ namespace Tower
     {
         public static readonly int EventId = typeof(TowerCardClickedEventArgs).GetHashCode();
 
-        public TowerBuildInfo TowerInfo { get; private set; }
+        public int TowerConfigId { get; private set; }
 
         public override int Id => EventId;
 
-        public static TowerCardClickedEventArgs Create(TowerBuildInfo towerInfo)
+        public static TowerCardClickedEventArgs Create(int towerConfigId)
         {
             var args = ReferencePool.Acquire<TowerCardClickedEventArgs>();
-            args.TowerInfo = towerInfo;
+            args.TowerConfigId = towerConfigId;
             return args;
         }
 
         public override void Clear()
         {
-            TowerInfo = default;
+            TowerConfigId = 0;
         }
     }
 }

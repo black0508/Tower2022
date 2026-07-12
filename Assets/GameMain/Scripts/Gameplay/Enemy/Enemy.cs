@@ -13,6 +13,16 @@ namespace Tower
         [SerializeField] int goldReward = 10;
         [SerializeField] int baseDamage = 1;
 
+        [Header("Slow State")]
+        [SyncVar(hook = nameof(OnSpeedMultiplierChanged))]
+        public float speedMultiplier = 1f;
+
+        [SyncVar] public float slowEndTime;
+
+        [Header("Visual")]
+        [SerializeField] MeshRenderer meshRenderer;
+        Color originalColor;
+
         [Header("Path")]
         [SerializeField] private string pathEndTag = "Tower.Path.End";
         [SerializeField] private float reachBaseDistance = 1f;
@@ -24,6 +34,8 @@ namespace Tower
         void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
+            if (meshRenderer != null)
+                originalColor = meshRenderer.material.color;
         }
 
         public override void OnStartServer()
@@ -55,11 +67,41 @@ namespace Tower
         {
             if (!isServer) return;
 
+            if (speedMultiplier < 1f && NetworkTime.time >= slowEndTime)
+                speedMultiplier = 1f;
+
+            agent.speed = baseSpeed * speedMultiplier;
+
             if (!reachedBase && pathEnd != null &&
                 Vector3.Distance(transform.position, pathEnd.position) < reachBaseDistance)
             {
                 ReachBase();
             }
+        }
+
+        [Server]
+        public void ApplySlow(float newMultiplier, float duration)
+        {
+            if (newMultiplier < speedMultiplier)
+            {
+                speedMultiplier = newMultiplier;
+                slowEndTime = (float)NetworkTime.time + duration;
+            }
+            else if (newMultiplier == speedMultiplier)
+            {
+                slowEndTime = Mathf.Max(slowEndTime, (float)NetworkTime.time + duration);
+            }
+        }
+
+        void OnSpeedMultiplierChanged(float oldVal, float newVal)
+        {
+            RefreshSlowVisual(newVal);
+        }
+
+        void RefreshSlowVisual(float multiplier)
+        {
+            if (meshRenderer == null) return;
+            meshRenderer.material.color = multiplier < 1f ? Color.blue : originalColor;
         }
 
         [Server]

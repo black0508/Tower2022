@@ -115,9 +115,9 @@ GameObject:
   m_Component:
   - component: {fileID: 5473171141465978309}
   - component: {fileID: 7141718953069349615}
-  - component: {fileID: 1547483346775633502}
+  - component: {fileID: -583690080913345486}
   m_Layer: 0
-  m_Name: Projectile_Bullet
+  m_Name: Projectile_FrostBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -152,11 +152,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
-  _assetId: 2295726718
+  _assetId: 4237922879
   serverOnly: 0
   visibility: 0
   hasSpawned: 0
---- !u!114 &1547483346775633502
+--- !u!114 &-583690080913345486
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -165,7 +165,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2177931460981595886}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 195d72eabcc6ddd41835f9fe88c0603f, type: 3}
+  m_Script: {fileID: 11500000, guid: fe27b53ced7b0c8499d479aefb3c7c32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncMethod: 0
@@ -181,4 +181,7 @@ MonoBehaviour:
   maxRange: 50
   damage: 0
   targetNetId: 0
+  aoeRadius: 2
+  slowMultiplier: 0.6
+  slowDuration: 3
   serverTarget: {fileID: 0}

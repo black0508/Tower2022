@@ -63,13 +63,14 @@ namespace Tower{
         {
             var go = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
             var proj = go.GetComponent<ProjectileBase>();
+            if (proj == null)
+            {
+                Debug.LogError($"[Server] {projectilePrefab.name} missing ProjectileBase.");
+                Destroy(go);
+                return;
+            }
 
-            proj.targetNetId = target.netIdentity.netId;
-            proj.startPos = firePoint.position;
-            proj.speed = projectileSpeed;
-            proj.damage = damage;
-            proj.serverTarget = target;
-
+            proj.ServerLaunch(target, damage, projectileSpeed, firePoint.position);
             NetworkServer.Spawn(go);
         }
     }

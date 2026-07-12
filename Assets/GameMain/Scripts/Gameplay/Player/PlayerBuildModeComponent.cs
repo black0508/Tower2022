@@ -90,7 +90,7 @@ namespace Tower
         {
             if (buildState != BuildState.Building || e is not TowerCardClickedEventArgs args) return;
 
-            int configId = args.TowerInfo.TowerConfigId;
+            int configId = args.TowerConfigId;
             SetSelectedTower(selectedTowerConfigId == configId ? -1 : configId);
         }
 

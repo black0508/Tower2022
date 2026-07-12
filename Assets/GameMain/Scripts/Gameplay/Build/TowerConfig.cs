@@ -23,6 +23,9 @@ namespace Tower
     [Serializable]
     public struct TowerDef
     {
+        [LabelText("名称")]
+        public string displayName;
+
         [LabelText("造价")]
         public int cost;
 
