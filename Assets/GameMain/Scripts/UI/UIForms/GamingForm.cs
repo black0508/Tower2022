@@ -5,13 +5,17 @@ using UnityEngine.UI;
 namespace Tower
 {
     /// <summary>
-    /// 战斗主界面：金币 / 基地生命 + 建造栏。
+    /// 战斗主界面：金币 / 波次 / 基地生命 + 建造栏。
     /// </summary>
     public class GamingForm : UGUIForm
     {
         [Header("HUD")]
         [SerializeField] Text goldText;
+        [SerializeField] Text waveText;
         [SerializeField] Text hpText;
+
+        [Header("Status")]
+        [SerializeField] StatusPanelUI statusPanel;
 
         [Header("Build Bar")]
         [SerializeField] BuildBarUI buildBar;
@@ -19,6 +23,14 @@ namespace Tower
         protected override void OnOpen(object userData)
         {
             base.OnOpen(userData);
+
+            if (waveText == null)
+            {
+                var t = transform.Find("WaveText");
+                if (t != null) waveText = t.GetComponent<Text>();
+            }
+
+            statusPanel?.Init();
 
             if (buildBar != null)
             {
@@ -29,7 +41,12 @@ namespace Tower
             GameEntry.Event.Subscribe(SharedGoldChangedEventArgs.EventId, OnSharedGoldChanged);
             GameEntry.Event.Subscribe(HomeBaseHpChangedEventArgs.EventId, OnHomeBaseHpChanged);
             GameEntry.Event.Subscribe(BuildModeChangedEventArgs.EventId, OnBuildModeChanged);
-            RefreshGold(GameEntry.State != null ? GameEntry.State.sharedGold : 0);
+            GameEntry.Event.Subscribe(GamePhaseChangedEventArgs.EventId, OnGamePhaseChanged);
+            GameEntry.Event.Subscribe(CurrentWaveChangedEventArgs.EventId, OnCurrentWaveChanged);
+
+            var state = GameEntry.State;
+            RefreshGold(state != null ? state.sharedGold : 0);
+            RefreshWave(state != null ? state.currentWave : 0);
             RefreshHpFromScene();
         }
 
@@ -38,8 +55,14 @@ namespace Tower
             GameEntry.Event.Unsubscribe(SharedGoldChangedEventArgs.EventId, OnSharedGoldChanged);
             GameEntry.Event.Unsubscribe(HomeBaseHpChangedEventArgs.EventId, OnHomeBaseHpChanged);
             GameEntry.Event.Unsubscribe(BuildModeChangedEventArgs.EventId, OnBuildModeChanged);
+            GameEntry.Event.Unsubscribe(GamePhaseChangedEventArgs.EventId, OnGamePhaseChanged);
+            GameEntry.Event.Unsubscribe(CurrentWaveChangedEventArgs.EventId, OnCurrentWaveChanged);
+
+            statusPanel?.Clear();
+
             if (buildBar != null)
                 buildBar.Clear();
+
             base.OnClose(isShutdown, userData);
         }
 
@@ -61,10 +84,39 @@ namespace Tower
             buildBar.gameObject.SetActive(args.IsActive);
         }
 
+        void OnGamePhaseChanged(object sender, GameEventArgs e)
+        {
+            var state = GameEntry.State;
+            if (state != null)
+                RefreshWave(state.currentWave);
+        }
+
+        void OnCurrentWaveChanged(object sender, GameEventArgs e)
+        {
+            if (e is not CurrentWaveChangedEventArgs args) return;
+            RefreshWave(args.CurrentWave);
+        }
+
         void RefreshGold(int gold)
         {
             if (goldText != null)
                 goldText.text = $"金币: {gold}";
+        }
+
+        void RefreshWave(int waveNumber)
+        {
+            if (waveText == null) return;
+
+            if (waveNumber <= 0)
+            {
+                waveText.text = "战斗未开始";
+                return;
+            }
+
+            int total = GameEntry.State?.TotalWaves ?? 0;
+            waveText.text = total > 0
+                ? $"波次: {waveNumber}/{total}"
+                : $"波次: {waveNumber}";
         }
 
         void RefreshHpFromScene()

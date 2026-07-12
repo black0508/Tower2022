@@ -30,14 +30,21 @@ namespace Tower
         [SyncVar(hook = nameof(OnPhaseChanged))]
         public GamePhase phase = GamePhase.Preparing;
 
-        [SyncVar] public int currentWave;
+        /// <summary>当前波次（1-based），0 表示尚未开战。</summary>
+        [SyncVar(hook = nameof(OnCurrentWaveChanged))]
+        public int currentWave;
         [SyncVar] public float betweenWavesTimer;
+
+        /// <summary>总波次：服务端由 config 写入，客户端由 RpcStartBattle 同步。</summary>
+        public int totalWaves;
 
         [SerializeField] GameObject gamePlayerPrefab;
 
         WaveManager m_WaveManager;
 
         public IReadOnlyList<GamePlayer> Players => m_Players;
+        public WaveManager WaveManager => m_WaveManager;
+        public int TotalWaves => totalWaves;
 
         public void RegisterPlayer(GamePlayer player)
         {
@@ -56,18 +63,29 @@ namespace Tower
             GameEntry.RegisterState(this);
             GameEntry.Event.Subscribe(EnemyKilledEventArgs.EventId, OnEnemyKilled);
 
-            m_WaveManager = FindObjectOfType<WaveManager>();
+            EnsureWaveManager();
             if (m_WaveManager == null)
                 Debug.LogError("[Server] WaveManager not found in scene.");
             else
+            {
                 m_WaveManager.InitServer();
+                totalWaves = m_WaveManager.config != null ? m_WaveManager.config.waves.Length : 0;
+            }
         }
 
         public override void OnStartClient()
         {
             GameEntry.RegisterState(this);
+            EnsureWaveManager();
+
             if (GameEntry.UI != null && !GameEntry.UI.HasUIForm(UIFormId.GamingForm))
                 GameEntry.UI.OpenUIForm(UIFormId.GamingForm);
+        }
+
+        void EnsureWaveManager()
+        {
+            if (m_WaveManager == null)
+                m_WaveManager = FindObjectOfType<WaveManager>();
         }
 
         void OnDestroy()
@@ -95,6 +113,7 @@ namespace Tower
             var go = Instantiate(gamePlayerPrefab);
             go.name = $"{gamePlayerPrefab.name} [connId={conn.connectionId}]";
             NetworkServer.AddPlayerForConnection(conn, go);
+            TargetSyncBattleInfo(conn, totalWaves);
             Debug.Log($"[Server] Player added for connection {conn.connectionId}");
         }
 
@@ -119,7 +138,7 @@ namespace Tower
         void TickPreparing()
         {
             if (AreAllPlayersReady())
-                TransitionTo(GamePhase.Wave);
+                TransitionTo(GamePhase.BetweenWaves);
         }
 
         [Server]
@@ -143,10 +162,9 @@ namespace Tower
             if (betweenWavesTimer > 0) return;
 
             currentWave++;
-            m_WaveManager?.StartWave(currentWave, skipDelayBeforeWave: true);
+            m_WaveManager?.StartWave(currentWave - 1, skipDelayBeforeWave: true);
             TransitionTo(GamePhase.Wave);
         }
-
         [Server]
         void TransitionTo(GamePhase newPhase)
         {
@@ -156,11 +174,11 @@ namespace Tower
             switch (newPhase)
             {
                 case GamePhase.Wave:
-                    if (currentWave == 0)
-                        m_WaveManager?.StartWave(0);
                     break;
                 case GamePhase.BetweenWaves:
-                    betweenWavesTimer = GetDelayBeforeWave(currentWave + 1);
+                    betweenWavesTimer = GetDelayBeforeWave(currentWave);
+                    if (currentWave <= 0)
+                        RpcStartBattle(totalWaves);
                     break;
                 case GamePhase.Victory:
                     Debug.Log("[Server] === VICTORY ===");
@@ -221,6 +239,25 @@ namespace Tower
         void OnPhaseChanged(GamePhase oldVal, GamePhase newVal)
         {
             GameEntry.Event.Fire(this, GamePhaseChangedEventArgs.Create(newVal));
+        }
+
+        void OnCurrentWaveChanged(int oldVal, int newVal)
+        {
+            GameEntry.Event.Fire(this, CurrentWaveChangedEventArgs.Create(newVal));
+        }
+
+        [ClientRpc]
+        void RpcStartBattle(int total)
+        {
+            totalWaves = total;
+            GameEntry.Event.Fire(this, CurrentWaveChangedEventArgs.Create(currentWave));
+        }
+
+        [TargetRpc]
+        void TargetSyncBattleInfo(NetworkConnectionToClient _, int total)
+        {
+            totalWaves = total;
+            GameEntry.Event.Fire(this, CurrentWaveChangedEventArgs.Create(currentWave));
         }
     }
 }

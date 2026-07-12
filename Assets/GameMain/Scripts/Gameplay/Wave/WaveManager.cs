@@ -11,7 +11,6 @@ namespace Tower
     /// </summary>
     public class WaveManager : MonoBehaviour
     {
-        const float WaveInfoUpdateInterval = 0.5f;
         const string SpawnPointTag = "Tower.Path.Start";
 
         public WaveConfig config;
@@ -21,8 +20,6 @@ namespace Tower
 
         float waveTimer;
         float delayBeforeWaveTimer;
-        float waveInfoTimer;
-        float timelineEndTime;
         bool spawnPhaseComplete;
         int waveIndex;
         Queue<ScheduledSpawn> spawnQueue;
@@ -74,7 +71,6 @@ namespace Tower
             killedThisWave = 0;
             waveTimer = 0;
             delayBeforeWaveTimer = skipDelayBeforeWave ? 0 : entry.delayBeforeWave;
-            waveInfoTimer = 0;
             spawnPhaseComplete = false;
             spawnQueue.Clear();
 
@@ -104,7 +100,6 @@ namespace Tower
                 spawnQueue.Enqueue(s);
 
             float timelineEndTime = scheduled.Count > 0 ? scheduled[scheduled.Count - 1].spawnTime : 0;
-            this.timelineEndTime = timelineEndTime;
             Debug.Log($"[Server] Wave {index + 1}/{config.waves.Length} started, plannedSpawns={spawnQueue.Count}, timelineEnd={timelineEndTime:F1}s");
         }
 
@@ -119,17 +114,6 @@ namespace Tower
             }
 
             waveTimer += Time.deltaTime;
-            waveInfoTimer += Time.deltaTime;
-
-            if (waveInfoTimer >= WaveInfoUpdateInterval)
-            {
-                waveInfoTimer = 0;
-                float progress = timelineEndTime > 0
-                    ? Mathf.Clamp01(waveTimer / timelineEndTime)
-                    : 1f;
-                GameEntry.Event.Fire(this, WaveInfoUpdateEventArgs.Create(
-                    waveIndex + 1, config.waves.Length, progress));
-            }
 
             while (spawnQueue.Count > 0 && waveTimer >= spawnQueue.Peek().spawnTime)
             {

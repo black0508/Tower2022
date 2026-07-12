@@ -24,13 +24,19 @@ MonoBehaviour:
   waves:
   - delayBeforeWave: 2
     spawns:
-    - spawnTime: 2
+    - spawnTime: 0
       spawnCount: 5
       spawnInterval: 2
       enemyPrefab: {fileID: 2159915181064162888, guid: 4f2c77d7fd1fbb448b8c6a28efa2bbf3, type: 3}
   - delayBeforeWave: 4
     spawns:
-    - spawnTime: 4
+    - spawnTime: 0
       spawnCount: 8
+      spawnInterval: 1
+      enemyPrefab: {fileID: 2159915181064162888, guid: 4f2c77d7fd1fbb448b8c6a28efa2bbf3, type: 3}
+  - delayBeforeWave: 1
+    spawns:
+    - spawnTime: 0
+      spawnCount: 1
       spawnInterval: 1
       enemyPrefab: {fileID: 2159915181064162888, guid: 4f2c77d7fd1fbb448b8c6a28efa2bbf3, type: 3}

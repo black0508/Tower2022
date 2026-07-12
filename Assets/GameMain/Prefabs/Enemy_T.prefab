@@ -161,10 +161,15 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  hp: 100
-  maxHp: 100
+  hp: 150
+  maxHp: 150
   baseSpeed: 2
-  baseTag: Tower.Path.End
+  goldReward: 10
+  baseDamage: 1
+  speedMultiplier: 1
+  slowEndTime: 0
+  meshRenderer: {fileID: 4434328822804156555}
+  pathEndTag: Tower.Path.End
   reachBaseDistance: 1
 --- !u!114 &7084865205404923407
 MonoBehaviour:
