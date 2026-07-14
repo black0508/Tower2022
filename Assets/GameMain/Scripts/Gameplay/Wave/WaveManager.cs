@@ -50,14 +50,14 @@ namespace Tower
             else
                 m_SpawnPoint = spawnGo.transform;
 
-            GameEntry.Event.Subscribe(EnemyKilledEventArgs.EventId, OnEnemyKilled);
+            GameEntry.Event.Subscribe(EnemyRemovedEventArgs.EventId, OnEnemyRemoved);
             GameEntry.Event.Subscribe(WaveSpawnEnemyEventArgs.EventId, OnSpawnScheduled);
         }
 
         void OnDestroy()
         {
             if (!initialized) return;
-            GameEntry.Event.Unsubscribe(EnemyKilledEventArgs.EventId, OnEnemyKilled);
+            GameEntry.Event.Unsubscribe(EnemyRemovedEventArgs.EventId, OnEnemyRemoved);
             GameEntry.Event.Unsubscribe(WaveSpawnEnemyEventArgs.EventId, OnSpawnScheduled);
         }
 
@@ -141,7 +141,7 @@ namespace Tower
             spawnedThisWave++;
         }
 
-        void OnEnemyKilled(object sender, GameEventArgs e)
+        void OnEnemyRemoved(object sender, GameEventArgs e)
         {
             killedThisWave++;
         }

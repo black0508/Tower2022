@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Tower
 {
     /// <summary>
-    /// 自定义网络管理器：Spawn GameState，玩家由 GameState 创建。
+    /// 自定义网络管理器：Spawn GameState，玩家由 PlayerManager 创建。
     /// </summary>
     public class GameNetworkManager : NetworkManager
     {
@@ -46,14 +46,13 @@ namespace Tower
             base.OnServerConnect(conn);
             Debug.Log($"[Server] Client connected: connId={conn.connectionId}");
 
-            var state = GameEntry.State;
-            if (state == null)
+            var pm = GameEntry.PlayerManager;
+            if (pm == null)
             {
-                Debug.LogError("[Server] GameState not ready, cannot spawn player.");
+                Debug.LogError("[Server] PlayerManager not ready, cannot spawn player.");
                 return;
             }
-
-            state.SpawnPlayer(conn);
+            pm.SpawnPlayer(conn);
         }
 
         public override void OnServerDisconnect(NetworkConnectionToClient conn)

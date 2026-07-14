@@ -13,9 +13,9 @@ namespace Tower
     /// <summary>
     /// 敌人离开战场事件（击杀或到达基地）。
     /// </summary>
-    public sealed class EnemyKilledEventArgs : GameEventArgs
+    public sealed class EnemyRemovedEventArgs : GameEventArgs
     {
-        public static readonly int EventId = typeof(EnemyKilledEventArgs).GetHashCode();
+        public static readonly int EventId = typeof(EnemyRemovedEventArgs).GetHashCode();
 
         public EnemyRemoveReason Reason { get; private set; }
         public int GoldAmount { get; private set; }
@@ -25,10 +25,10 @@ namespace Tower
 
         public override int Id => EventId;
 
-        public static EnemyKilledEventArgs Create(
+        public static EnemyRemovedEventArgs Create(
             EnemyRemoveReason reason, int gold, int baseDmg, Vector3 pos, uint netId)
         {
-            var args = ReferencePool.Acquire<EnemyKilledEventArgs>();
+            var args = ReferencePool.Acquire<EnemyRemovedEventArgs>();
             args.Reason = reason;
             args.GoldAmount = gold;
             args.BaseDamage = baseDmg;

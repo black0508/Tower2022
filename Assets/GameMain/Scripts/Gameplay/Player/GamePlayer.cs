@@ -17,22 +17,25 @@ namespace Tower
         public override void OnStartServer()
         {
             playerId = (int)netId;
-            GameEntry.State?.RegisterPlayer(this);
+            GameEntry.PlayerManager?.RegisterPlayer(this);
         }
 
         public override void OnStartClient()
         {
-            GameEntry.State?.RegisterPlayer(this);
+            if (isServer) return; // Host 已在 OnStartServer 注册
+            GameEntry.PlayerManager?.RegisterPlayer(this);
         }
 
         public override void OnStartLocalPlayer()
         {
+            // isLocalPlayer 此时一定为 true，补一次本地缓存
+            GameEntry.PlayerManager?.RegisterPlayer(this);
             gameObject.AddComponent<PlayerBuildModeComponent>().InitLocal(this);
         }
 
         void OnDestroy()
         {
-            GameEntry.State?.UnregisterPlayer(this);
+            GameEntry.PlayerManager?.UnregisterPlayer(this);
         }
 
         [Command]
@@ -49,19 +52,18 @@ namespace Tower
         }
 
         [Command]
-        public void CmdBuildTower(Vector3 worldPos, int towerConfigId)
+        public void CmdBuildTower(uint slotNetId, int towerConfigId)
         {
-            var build = GameEntry.Build;
-            if (build == null)
+            if (!NetworkServer.spawned.TryGetValue(slotNetId, out var identity))
             {
-                TargetBuildResult(connectionToClient, false, "No BuildComponent");
+                TargetBuildResult(connectionToClient, false, "Slot not found");
                 return;
             }
 
-            var slot = build.GetSlotAtPosition(worldPos);
+            var slot = identity.GetComponent<BuildSlot>();
             if (slot == null)
             {
-                TargetBuildResult(connectionToClient, false, "Invalid position");
+                TargetBuildResult(connectionToClient, false, "NetId is not a BuildSlot");
                 return;
             }
 
@@ -90,7 +92,7 @@ namespace Tower
 
             slot.occupiedByTowerNetId = towerGo.GetComponent<NetworkIdentity>().netId;
 
-            Debug.Log($"[Server] Player {playerId} built towerConfigId={towerConfigId} at {worldPos}");
+            Debug.Log($"[Server] Player {playerId} built towerConfigId={towerConfigId} at slot netId={slotNetId}");
             TargetBuildResult(connectionToClient, true, null);
         }
 

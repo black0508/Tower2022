@@ -1,10 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 
-namespace Tower{
-    public class TowerBase : NetworkBehaviour
+namespace Tower
+{
+    public class TowerUnit : NetworkBehaviour
     {
         [Header("同步变量")]
         [SyncVar] public int ownerPlayerId = -1;

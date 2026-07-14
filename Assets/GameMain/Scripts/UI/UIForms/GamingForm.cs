@@ -47,7 +47,8 @@ namespace Tower
             var state = GameEntry.State;
             RefreshGold(state != null ? state.sharedGold : 0);
             RefreshWave(state != null ? state.currentWave : 0);
-            RefreshHpFromScene();
+            if (GameEntry.HomeBase != null)
+                RefreshHp(GameEntry.HomeBase.hp, GameEntry.HomeBase.maxHp);
         }
 
         protected override void OnClose(bool isShutdown, object userData)
@@ -117,13 +118,6 @@ namespace Tower
             waveText.text = total > 0
                 ? $"波次: {waveNumber}/{total}"
                 : $"波次: {waveNumber}";
-        }
-
-        void RefreshHpFromScene()
-        {
-            var homeBase = FindObjectOfType<HomeBase>();
-            if (homeBase != null)
-                RefreshHp(homeBase.hp, homeBase.maxHp);
         }
 
         void RefreshHp(int current, int max)

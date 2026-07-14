@@ -143,7 +143,7 @@ namespace Tower
             }
 
             Debug.Log($"[Build] Request build towerConfigId={selectedTowerConfigId} at slot netId={slot.netId} pos={slot.transform.position}");
-            player.CmdBuildTower(slot.transform.position, selectedTowerConfigId);
+            player.CmdBuildTower(slot.netId, selectedTowerConfigId);
         }
 
         bool RaycastMouse(out RaycastHit hit)

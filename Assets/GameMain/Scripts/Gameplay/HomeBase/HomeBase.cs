@@ -18,18 +18,32 @@ namespace Tower
 
         public override void OnStartServer()
         {
-            GameEntry.Event.Subscribe(EnemyKilledEventArgs.EventId, OnEnemyKilled);
+            GameEntry.RegisterHomeBase(this);
+            GameEntry.Event.Subscribe(EnemyRemovedEventArgs.EventId, OnEnemyRemoved);
+        }
+
+        public override void OnStartClient()
+        {
+            GameEntry.RegisterHomeBase(this);
+            // 新客户端加入时 SyncVar hook 不触发，补发一次当前值给 UI
+            GameEntry.Event.Fire(this, HomeBaseHpChangedEventArgs.Create(hp, maxHp));
         }
 
         public override void OnStopServer()
         {
-            GameEntry.Event.Unsubscribe(EnemyKilledEventArgs.EventId, OnEnemyKilled);
+            GameEntry.Event.Unsubscribe(EnemyRemovedEventArgs.EventId, OnEnemyRemoved);
+            GameEntry.UnregisterHomeBase(this);
         }
 
-        void OnEnemyKilled(object sender, GameEventArgs e)
+        public override void OnStopClient()
+        {
+            GameEntry.UnregisterHomeBase(this);
+        }
+
+        void OnEnemyRemoved(object sender, GameEventArgs e)
         {
             if (!isServer) return;
-            if (e is EnemyKilledEventArgs args && args.Reason == EnemyRemoveReason.ReachedBase)
+            if (e is EnemyRemovedEventArgs args && args.Reason == EnemyRemoveReason.ReachedBase)
                 TakeDamage(args.BaseDamage > 0 ? args.BaseDamage : damagePerEnemy);
         }
 

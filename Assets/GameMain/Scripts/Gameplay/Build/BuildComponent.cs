@@ -5,7 +5,7 @@ using UnityGameFramework.Runtime;
 namespace Tower
 {
     /// <summary>
-    /// 建造管理：缓存场景槽位、客户端高亮、服务端按坐标查槽位。
+    /// 建造管理：缓存场景槽位、客户端高亮。
     /// </summary>
     public class BuildComponent : GameFrameworkComponent
     {
@@ -27,13 +27,14 @@ namespace Tower
             return cachedSlots;
         }
 
-        public BuildSlot GetSlotAtPosition(Vector3 worldPos, float tolerance = 0.5f)
+        /// <summary>仅服务端：对局开始时清空所有槽位占用（场景 SyncVar 会跨局残留）。</summary>
+        public void ClearAllOccupancy()
         {
-            var sqrTol = tolerance * tolerance;
-            foreach (var slot in GetAllSlots())
-                if (Vector3.SqrMagnitude(slot.transform.position - worldPos) < sqrTol)
-                    return slot;
-            return null;
+            foreach (var slot in GetAllSlots(forceRefresh: true))
+            {
+                if (slot != null)
+                    slot.occupiedByTowerNetId = 0;
+            }
         }
 
         // ===== 仅客户端调用 =====

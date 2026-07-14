@@ -112,15 +112,8 @@ namespace Tower
 
         static bool GetLocalPlayerReady()
         {
-            var state = GameEntry.State;
-            if (state == null) return false;
-
-            foreach (var p in state.Players)
-            {
-                if (p.isLocalPlayer) return p.isReady;
-            }
-
-            return false;
+            var local = GameEntry.PlayerManager?.GetLocalPlayer();
+            return local != null && local.isReady;
         }
     }
 }

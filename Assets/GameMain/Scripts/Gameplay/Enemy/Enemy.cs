@@ -108,7 +108,7 @@ namespace Tower
         void ReachBase()
         {
             reachedBase = true;
-            GameEntry.Event.Fire(this, EnemyKilledEventArgs.Create(
+            GameEntry.Event.Fire(this, EnemyRemovedEventArgs.Create(
                 EnemyRemoveReason.ReachedBase,
                 gold: 0,
                 baseDmg: baseDamage,
@@ -123,7 +123,7 @@ namespace Tower
             hp -= dmg;
             if (hp <= 0)
             {
-                GameEntry.Event.Fire(this, EnemyKilledEventArgs.Create(
+                GameEntry.Event.Fire(this, EnemyRemovedEventArgs.Create(
                     EnemyRemoveReason.KilledByPlayer,
                     gold: goldReward,
                     baseDmg: 0,
