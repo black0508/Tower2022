@@ -47,7 +47,7 @@ namespace Tower
         {
             if (isServer)
             {
-                if (serverTarget != null && serverTarget.hp > 0)
+                if (serverTarget != null && serverTarget.IsAlive)
                 {
                     lastKnownTargetPos = serverTarget.transform.position;
                     hasLastKnownTargetPos = true;

@@ -19,6 +19,7 @@ namespace Tower
         public float maxRange = 50f;
 
         [HideInInspector] public int damage;
+        [HideInInspector] public NetworkIdentity sourceNetIdentity;
 
         protected float lifetime;
         protected bool hasHitLocally;
@@ -50,11 +51,12 @@ namespace Tower
         }
 
         [Server]
-        public void ServerLaunch(Enemy target, int launchDamage, float launchSpeed, Vector3 launchPos)
+        public void ServerLaunch(Enemy target, int launchDamage, float launchSpeed, Vector3 launchPos, NetworkIdentity source)
         {
             damage = launchDamage;
             speed = launchSpeed;
             startPos = launchPos;
+            sourceNetIdentity = source;
             OnServerLaunch(target);
         }
 

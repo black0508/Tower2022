@@ -1,0 +1,34 @@
+---
+description: Inspector 可配字段优先用 Odin，降低配错风险
+alwaysApply: true
+---
+
+# Odin Inspector 配置约定
+
+## 原则
+
+- **面板里给人配的数据**（Prefab / ScriptableObject / 场景组件上的可编辑字段）优先用 **Odin**（`Sirenix.OdinInspector`），不要只靠默认 `SerializeField` 裸枚举/裸数组。
+- 目标：看名字就知道用途，减少 `Damage` vs `BaseDamage` 这类 Key 配错。
+
+## 常用做法
+
+- 枚举成员加 `[LabelText("中文含义 (用途)")]`
+- 列表用 `[TableList]`；键值对用 `Dictionary` + `[DictionaryDrawerSettings]`（需 `SerializedScriptableObject` / Odin 序列化宿主）
+- 结构体行内字段用 `[HorizontalGroup]` + `[LabelText]`
+- 易错配置加 `[InfoBox]` / `[ValidateInput]`（重复 Key、非法 None 等）
+
+## 已有参考
+
+- `TowerConfig`：`SerializedScriptableObject` + Dictionary
+- `AttributeComponent` / `AttributeEntry`：TableList + 枚举 LabelText + ValidateInput
+
+## 与 Mirror 的关系
+
+- Mirror 自带 `NetworkBehaviourInspector` 会盖掉 Odin。
+- 工程已按 [Mirror 官方说明](https://mirror-networking.gitbook.io/docs/community-guides/odin-inspector-support) 改为继承 `OdinEditor`（见 `Assets/ThirdParty/Mirror/Editor/NetworkBehaviourInspector.cs`）。
+- 若升级 Mirror 覆盖了该文件，需重新改回 `OdinEditor`，否则 NetworkBehaviour 上的 Odin 特性会再次失效。
+
+## 不做
+
+- 纯运行时、不进 Inspector 的字段不必强行套 Odin
+- 不要为了 Odin 破坏 Mirror `NetworkBehaviour` 继承（可用属性增强，不必改成 SerializedMonoBehaviour）

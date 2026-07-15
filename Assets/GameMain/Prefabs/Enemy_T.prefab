@@ -122,6 +122,8 @@ GameObject:
   - component: {fileID: 7141979263489570094}
   - component: {fileID: 5082423717486830299}
   - component: {fileID: 9080940497917102254}
+  - component: {fileID: 2355197251761718427}
+  - component: {fileID: 2612404704598762346}
   m_Layer: 0
   m_Name: Enemy_T
   m_TagString: Untagged
@@ -161,13 +163,6 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  hp: 150
-  maxHp: 150
-  baseSpeed: 2
-  goldReward: 10
-  baseDamage: 1
-  speedMultiplier: 1
-  slowEndTime: 0
   meshRenderer: {fileID: 4434328822804156555}
   pathEndTag: Tower.Path.End
   reachBaseDistance: 1
@@ -295,3 +290,44 @@ MonoBehaviour:
   rotationSensitivity: 0.01
   positionPrecision: 0.01
   scalePrecision: 0.01
+--- !u!114 &2355197251761718427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2159915181064162888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a48a578560a18d41bbe7029a54a1b3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMethod: 0
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+--- !u!114 &2612404704598762346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2159915181064162888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd298a0bab2fc0f438efa94e11dac1ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMethod: 0
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  initialAttributes:
+  - key: 2
+    value: 100
+  - key: 10
+    value: 3
+  - key: 11
+    value: 1
+  - key: 12
+    value: 10

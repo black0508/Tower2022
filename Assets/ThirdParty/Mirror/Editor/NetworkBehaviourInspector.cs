@@ -2,12 +2,20 @@ using System;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector.Editor;
+#endif
 
 namespace Mirror
 {
     [CustomEditor(typeof(NetworkBehaviour), true)]
     [CanEditMultipleObjects]
-    public class NetworkBehaviourInspector : Editor
+    public class NetworkBehaviourInspector :
+#if ODIN_INSPECTOR
+        OdinEditor
+#else
+        Editor
+#endif
     {
         Type scriptClass;
         bool syncsAnything;
@@ -42,8 +50,15 @@ namespace Mirror
             return ((NetworkBehaviour)serializedObject.targetObject).HasSyncObjects();
         }
 
+#if ODIN_INSPECTOR
+        protected override void OnEnable()
+#else
         void OnEnable()
+#endif
         {
+#if ODIN_INSPECTOR
+            base.OnEnable();
+#endif
             // sometimes target is null. just return early.
             if (target == null) return;
 
@@ -60,7 +75,13 @@ namespace Mirror
 
         public override void OnInspectorGUI()
         {
+#if ODIN_INSPECTOR
+            // Mirror + Odin：用 Odin 画业务字段，否则 LabelText/TableList 等不生效
+            // https://mirror-networking.gitbook.io/docs/community-guides/odin-inspector-support
+            base.OnInspectorGUI();
+#else
             DrawDefaultInspector();
+#endif
             DrawSyncObjectCollections();
             DrawDefaultSyncSettings();
         }

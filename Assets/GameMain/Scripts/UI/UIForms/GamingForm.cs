@@ -46,9 +46,13 @@ namespace Tower
 
             var state = GameEntry.State;
             RefreshGold(state != null ? state.sharedGold : 0);
-            RefreshWave(state != null ? state.currentWave : 0);
+            RefreshWaveForPhase(state != null ? state.phase : GamePhase.Preparing);
             if (GameEntry.HomeBase != null)
-                RefreshHp(GameEntry.HomeBase.hp, GameEntry.HomeBase.maxHp);
+            {
+                var attrs = GameEntry.HomeBase.GetComponent<AttributeComponent>();
+                if (attrs != null)
+                    RefreshHp(Mathf.RoundToInt(attrs.CurrentHp), Mathf.RoundToInt(attrs.GetMaxHp()));
+            }
         }
 
         protected override void OnClose(bool isShutdown, object userData)
@@ -87,15 +91,14 @@ namespace Tower
 
         void OnGamePhaseChanged(object sender, GameEventArgs e)
         {
-            var state = GameEntry.State;
-            if (state != null)
-                RefreshWave(state.currentWave);
+            if (e is not GamePhaseChangedEventArgs args) return;
+            RefreshWaveForPhase(args.Phase);
         }
 
         void OnCurrentWaveChanged(object sender, GameEventArgs e)
         {
-            if (e is not CurrentWaveChangedEventArgs args) return;
-            RefreshWave(args.CurrentWave);
+            if (e is not CurrentWaveChangedEventArgs) return;
+            RefreshWaveForPhase(GameEntry.State != null ? GameEntry.State.phase : GamePhase.Preparing);
         }
 
         void RefreshGold(int gold)
@@ -104,9 +107,28 @@ namespace Tower
                 goldText.text = $"金币: {gold}";
         }
 
+        void RefreshWaveForPhase(GamePhase phase)
+        {
+            if (phase == GamePhase.Preparing)
+            {
+                if (waveText != null)
+                    waveText.text = "战斗未开始";
+                return;
+            }
+
+            var state = GameEntry.State;
+            RefreshWave(state != null ? state.currentWave : 0);
+        }
+
         void RefreshWave(int waveNumber)
         {
             if (waveText == null) return;
+
+            if (GameEntry.State != null && GameEntry.State.phase == GamePhase.Preparing)
+            {
+                waveText.text = "战斗未开始";
+                return;
+            }
 
             if (waveNumber <= 0)
             {

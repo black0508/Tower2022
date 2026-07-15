@@ -1,19 +1,40 @@
 # W2-Day2 — Effect Pipeline 完整可抄实现
 
 > 日期：2026-07-14  
-> 目标工程：`F:\Download\Tower2022-main\Tower2022-main`（**当前 Day1 尚未合入**）  
+> 目标工程：`F:\Download\Tower2022-main (1)\Tower2022-main`（**Day1 已合入**；本文已按当前仓库命名/接口校订）  
 > 架构：方案 B — Stats / Resource / Unit Buff / Mutation + DamageService  
 > Mirror：工程内 `Assets/ThirdParty/Mirror`，SyncList 支持 `OnAdd` / `OnSet` / `OnRemove`  
 > **本文是 Day2 唯一依据**：打开即可按文件抄；抄完对照 Checklist 验收
 
-### 与当前仓库命名对齐（重要）
+---
 
-Day1 未做，本文**保持现有类名**：
+## 文档评审修订（2026-07-15）
 
-| 现状 | Day1 计划改名（若你先做 Day1，全文替换即可） |
-|------|-----------------------------------------------|
-| `TowerBase` | `TowerUnit` |
-| `EnemyKilledEventArgs` | `EnemyRemovedEventArgs` |
+> 评审人：AI。文档即交付物，下述改动已直接并入正文，这里只记"为什么改"。
+
+**已修订**
+
+1. **命名与前提过期**（会编译不过）：原文假设"Day1 未合入"、用 `TowerBase` / `EnemyKilledEventArgs`。实际 Day1 已合入，全文改用 `TowerUnit` / `EnemyRemovedEventArgs`；`MutationDef.Matches` 改判 `TowerUnit`。
+2. **DamageService 暴击 vs 击杀预告顺序错误**（真 Bug）：原文 `wouldKill = info.amount >= CurrentHp` 在暴击倍率**之前**算，暴击（×1.8）只在结算时才乘 → 暴击致死不会触发 `OnKill/OnBeKilled`，"预告击杀"与真实 `OnFatalHit` 两套判定会打架。改为：修正钩子跑完后**先把暴击并入 `finalDamage`**，用同一个 `finalDamage` 做击杀预告和结算。并立契约：**OnDamageDealt/OnDamageTaken 负责改数值；OnKill/OnBeKilled 只观察或 `cancelled` 挡刀，不再改数值**。`DamageInfo` 因此加 `isCritical` 字段、`DamageService` 加 `CritMultiplier` 常量。
+3. **Mutation.OnDamageTaken 从不被调用**（死接口）：原 `DamageService` 只调 Mutation 的 `OnDamageDealt`。改为一次遍历里 `OnDamageDealt` 恒调、`Matches(target)` 再调 `OnDamageTaken`；顺手删掉 `CollectMutationDefs` 的空排序 `Sort((a,b)=>0)` 和每次伤害都 new 的 `List` 分配。
+4. **AttributeComponent.OnStartServer 重复写 SyncList**：`Recalculate()` 内部已对每个属性 `WriteToSyncList`，其后的 `foreach` 是重复劳动，删除。
+5. **文件位置口误**：`TryGetTargetPos` 在 `HomingProjectileBase`（不是 `HomingProjectile`），第 22 节已标注。
+
+**已知限制（Day2 不改，留记录）**
+
+- `BuffHolder.AddBuff` 刷新同 DefId 时用**旧实例**重新序列化，忽略新传入 Buff 的 payload。MVP（同效果减速）无影响；Day3 若要"强减速覆盖弱减速"需取较优值。
+- `AttributeComponent.Recalculate` 每次 new 一个 `HashSet<AttributeKey>`；量大再改复用缓冲。
+- Host 下 `HomeBase` 在 OnStartServer 与 OnStartClient 都订阅 `Hp.OnValueChanged`，会双订阅 → UI 事件双发（无害，沿用旧行为）。
+
+**范围提醒**
+
+- Day2 = Attribute（含 HP Resource）+ Buff + Mutation + DamageService 一整套 + 6 个现有文件改造，是 W2 最重的一天。波次 `PreWave` 重构（`2026-07-15-wave-phase-redesign.md`）与本文正交，都算 Day2 内容。
+
+---
+
+### 命名对齐（重要）
+
+Day1 **已合入**，本文正文已统一使用当前仓库命名（塔类 `TowerUnit`、敌人离场事件 `EnemyRemovedEventArgs`），Day1 前的旧命名不再出现，直接抄即可。
 
 ---
 
@@ -22,7 +43,7 @@ Day1 未做，本文**保持现有类名**：
 **目标**
 
 - 落地 Attribute + Health + BuffHolder + MutationList 空壳 + DamageService
-- Enemy / TowerBase / HomeBase / Projectile 迁到新系统
+- Enemy / TowerUnit / HomeBase / Projectile 迁到新系统
 - 删掉旧减速字段；Frost 暂无减速（Day3 SlowBuff 恢复）
 
 **完成标志**
@@ -116,7 +137,7 @@ Assets/GameMain/Scripts/Debug/   （测完可删）
 
 ```text
 Enemy.cs          — 全量替换为下文
-TowerBase.cs      — 全量替换为下文
+TowerUnit.cs      — 全量替换为下文
 HomeBase.cs       — 全量替换为下文
 ProjectileBase.cs — ServerLaunch 加 source
 HomingProjectile.cs / FrostProjectile.cs — 命中走 DamageInfo
@@ -338,6 +359,7 @@ namespace Tower
         public DamageType type;
         public DamageTag tags;
         public float critChance;
+        public bool isCritical;
         public bool cancelled;
         public bool killed;
 
@@ -565,7 +587,7 @@ namespace Tower
             return Filter switch
             {
                 MutationTarget.All => true,
-                MutationTarget.Towers => unit.GetComponent<TowerBase>() != null,
+                MutationTarget.Towers => unit.GetComponent<TowerUnit>() != null,
                 MutationTarget.Enemies => unit.GetComponent<Enemy>() != null,
                 _ => false,
             };
@@ -689,9 +711,8 @@ namespace Tower
 
         public override void OnStartServer()
         {
+            // Recalculate 内部已把每个属性写入 SyncList；不需要再手动遍历一遍。
             Recalculate();
-            foreach (var kv in attributes)
-                WriteToSyncList(kv.Key, kv.Value.Final);
         }
 
         public override void OnStartClient()
@@ -1039,7 +1060,6 @@ namespace Tower
 ## 17. `DamageService.cs`
 
 ```csharp
-using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 
@@ -1047,6 +1067,8 @@ namespace Tower
 {
     public static class DamageService
     {
+        const float CritMultiplier = 1.8f;
+
         [Server]
         public static void Apply(ref DamageInfo info)
         {
@@ -1055,89 +1077,81 @@ namespace Tower
             var targetAttrs = info.target.GetComponent<AttributeComponent>();
             if (targetAttrs == null || !targetAttrs.IsAlive) return;
 
-            // 1) Mutations
+            var dstHolder = info.target.GetComponent<BuffHolder>();
+
+            // 1) 全局 Mutation：OnDamageDealt 恒调；命中目标（Matches）再调 OnDamageTaken
             var state = GameEntry.State;
             if (state != null)
             {
-                var dealt = CollectMutationDefs(state);
-                for (int i = 0; i < dealt.Count; i++)
-                    dealt[i].OnDamageDealt(ref info);
-
+                var ids = state.activeMutationIds;
+                for (int i = 0; i < ids.Count; i++)
+                {
+                    var mut = MutationRegistry.Get(ids[i]);
+                    if (mut == null) continue;
+                    mut.OnDamageDealt(ref info);
+                    if (mut.Matches(info.target)) mut.OnDamageTaken(ref info);
+                }
                 if (info.cancelled) return;
             }
 
-            // 2) Source buffs
+            // 2) 出手方 Buff
             if (info.source != null)
             {
                 var srcHolder = info.source.GetComponent<BuffHolder>();
                 if (srcHolder != null)
-                {
                     foreach (var buff in srcHolder.GetSortedServerBuffs())
                         buff.OnDamageDealt(ref info);
-                }
+                if (info.cancelled) return;
             }
 
-            if (info.cancelled) return;
-
-            // 3) Target buffs
-            var dstHolder = info.target.GetComponent<BuffHolder>();
+            // 3) 受击方 Buff
             if (dstHolder != null)
-            {
                 foreach (var buff in dstHolder.GetSortedServerBuffs())
                     buff.OnDamageTaken(ref info);
-            }
-
             if (info.cancelled) return;
 
-            // 4) 预告击杀
-            bool wouldKill = !info.IsHeal && info.amount >= targetAttrs.CurrentHp;
+            // 治疗直接结算，不进入暴击/击杀流程
+            if (info.IsHeal)
+            {
+                targetAttrs.ModHp(Mathf.Abs(info.amount));
+                return;
+            }
+
+            // 4) 修正钩子跑完后，先把暴击并入最终伤害
+            //    契约：OnDamageDealt/OnDamageTaken 负责改数值；OnKill/OnBeKilled 只观察或 cancelled 挡刀，不再改数值
+            float finalDamage = Mathf.Abs(info.amount);
+            if (info.critChance > 0f && Random.value <= info.critChance)
+            {
+                info.isCritical = true;
+                finalDamage *= CritMultiplier;
+            }
+
+            // 5) 击杀预告（与结算用同一个 finalDamage，保证一致）
+            bool wouldKill = finalDamage >= targetAttrs.CurrentHp;
             if (wouldKill)
             {
                 if (info.source != null)
                 {
                     var srcHolder = info.source.GetComponent<BuffHolder>();
                     if (srcHolder != null)
-                    {
                         foreach (var buff in srcHolder.GetSortedServerBuffs())
                             buff.OnKill(ref info);
-                    }
                 }
-
                 if (dstHolder != null)
-                {
                     foreach (var buff in dstHolder.GetSortedServerBuffs())
                         buff.OnBeKilled(ref info);
-                }
+
+                if (info.cancelled) return; // 护盾/免死可在此挡刀
             }
 
-            if (info.cancelled) return;
-
-            // 5) 结算 HP
-            float delta = info.IsHeal ? Mathf.Abs(info.amount) : -Mathf.Abs(info.amount);
-            if (!info.IsHeal && info.critChance > 0f && Random.value <= info.critChance)
-                delta *= 1.8f;
-
-            targetAttrs.ModHp(delta);
+            // 6) 结算 HP
+            targetAttrs.ModHp(-finalDamage);
 
             if (targetAttrs.CurrentHp <= 0f)
             {
                 info.killed = true;
-                var combat = info.target.GetComponent<ICombatEntity>();
-                combat?.OnFatalHit(ref info);
+                info.target.GetComponent<ICombatEntity>()?.OnFatalHit(ref info);
             }
-        }
-
-        static List<MutationDef> CollectMutationDefs(GameState state)
-        {
-            var list = new List<MutationDef>();
-            for (int i = 0; i < state.activeMutationIds.Count; i++)
-            {
-                var def = MutationRegistry.Get(state.activeMutationIds[i]);
-                if (def != null) list.Add(def);
-            }
-
-            list.Sort((a, b) => 0); // Mutation 暂无 Priority 字段；需要时再加
-            return list;
         }
     }
 }
@@ -1283,7 +1297,7 @@ namespace Tower
             reachedBase = true;
             dead = true;
             int baseDmg = Mathf.RoundToInt(attribute.GetFinal(AttributeKey.BaseDamage));
-            GameEntry.Event.Fire(this, EnemyKilledEventArgs.Create(
+            GameEntry.Event.Fire(this, EnemyRemovedEventArgs.Create(
                 EnemyRemoveReason.ReachedBase,
                 gold: 0,
                 baseDmg: baseDmg,
@@ -1319,7 +1333,7 @@ namespace Tower
             if (dead) return;
             dead = true;
             int gold = Mathf.RoundToInt(attribute.GetFinal(AttributeKey.GoldReward));
-            GameEntry.Event.Fire(this, EnemyKilledEventArgs.Create(
+            GameEntry.Event.Fire(this, EnemyRemovedEventArgs.Create(
                 EnemyRemoveReason.KilledByPlayer,
                 gold: gold,
                 baseDmg: 0,
@@ -1337,7 +1351,7 @@ namespace Tower
 }
 ```
 
-## 19. `TowerBase.cs`（全量替换）
+## 19. `TowerUnit.cs`（全量替换）
 
 ```csharp
 using System.Collections.Generic;
@@ -1348,7 +1362,7 @@ namespace Tower
 {
     [RequireComponent(typeof(BuffHolder))]
     [RequireComponent(typeof(AttributeComponent))]
-    public class TowerBase : NetworkBehaviour
+    public class TowerUnit : NetworkBehaviour
     {
         [Header("同步变量")]
         [SyncVar] public int ownerPlayerId = -1;
@@ -1452,7 +1466,7 @@ namespace Tower
             attribute.Recalculate();
             attribute.InitHpFull();
             attribute.Hp.OnValueChanged += OnHpChanged;
-            GameEntry.Event.Subscribe(EnemyKilledEventArgs.EventId, OnEnemyKilled);
+            GameEntry.Event.Subscribe(EnemyRemovedEventArgs.EventId, OnEnemyKilled);
             FireHpEvent(attribute.CurrentHp);
         }
 
@@ -1460,7 +1474,7 @@ namespace Tower
         {
             if (attribute != null)
                 attribute.Hp.OnValueChanged -= OnHpChanged;
-            GameEntry.Event.Unsubscribe(EnemyKilledEventArgs.EventId, OnEnemyKilled);
+            GameEntry.Event.Unsubscribe(EnemyRemovedEventArgs.EventId, OnEnemyKilled);
         }
 
         public override void OnStartClient()
@@ -1487,7 +1501,7 @@ namespace Tower
         void OnEnemyKilled(object sender, GameEventArgs e)
         {
             if (!isServer) return;
-            if (e is EnemyKilledEventArgs args && args.Reason == EnemyRemoveReason.ReachedBase)
+            if (e is EnemyRemovedEventArgs args && args.Reason == EnemyRemoveReason.ReachedBase)
             {
                 int dmg = args.BaseDamage > 0 ? args.BaseDamage : damagePerEnemy;
                 var info = new DamageInfo
@@ -1515,7 +1529,7 @@ namespace Tower
 
 ## 21. `ProjectileBase.cs`（改 ServerLaunch）
 
-在类里增加字段，并改 `ServerLaunch` 签名（**所有调用点已在 TowerBase 更新**）：
+在类里增加字段，并改 `ServerLaunch` 签名（**所有调用点已在 TowerUnit 更新**）：
 
 ```csharp
 // 新增字段
@@ -1534,9 +1548,9 @@ public void ServerLaunch(Enemy target, int launchDamage, float launchSpeed, Vect
 
 其余 `ProjectileBase` 代码保持不动。
 
-## 22. `HomingProjectile.CheckServerHit` + `TryGetTargetPos` 里 `hp` 判断
+## 22. `HomingProjectile.CheckServerHit` + `HomingProjectileBase.TryGetTargetPos` 里 `hp` 判断
 
-把所有 `serverTarget.hp > 0` 改成 `serverTarget.IsAlive`，命中改为：
+`CheckServerHit` 在 `HomingProjectile`；`TryGetTargetPos` 在其基类 `HomingProjectileBase`。把两处的 `serverTarget.hp > 0` 都改成 `serverTarget.IsAlive`，命中改为：
 
 ```csharp
 protected override bool CheckServerHit()
@@ -1795,7 +1809,7 @@ Frost 命中：`enemy.GetComponent<BuffHolder>().AddBuff(new SlowBuff { percent 
 
 ### 改造
 
-- [ ] Enemy / TowerBase / HomeBase 全量替换
+- [ ] Enemy / TowerUnit / HomeBase 全量替换
 - [ ] ProjectileBase 签名 + Homing/Frost 命中
 - [ ] GamingForm.RefreshHpFromScene
 - [ ] GameState.activeMutationIds + AddMutation
@@ -1819,7 +1833,7 @@ Frost 命中：`enemy.GetComponent<BuffHolder>().AddBuff(new SlowBuff { percent 
 
 # 关键提醒
 
-1. **先 Day1 或先 Day2**：本文按**当前仓库名**写。若先合 Day1，把 `TowerBase`→`TowerUnit`、`EnemyKilled*`→`EnemyRemoved*` 再抄。
+1. **命名基线**：本文按 Day1 **已合入后**的当前仓库命名书写（`TowerUnit` / `EnemyRemovedEventArgs`），直接抄即可，无需再做 Day1 前的改名替换。
 2. **HP 在 AttributeComponent 上（SyncVar + ResourceAttribute）**，不是单独组件；不要把 CurrentHp 配进 initialAttributes。
 3. **AttributeEntry 只有一份**：Inspector Base 与 SyncList Final 共用。
 4. **StatModifierBuffer = 黑板**；Buff 只往黑板写贡献。

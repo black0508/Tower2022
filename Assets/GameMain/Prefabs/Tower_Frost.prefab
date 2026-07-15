@@ -222,6 +222,8 @@ GameObject:
   - component: {fileID: 2514067034976184478}
   - component: {fileID: 6255301360599162133}
   - component: {fileID: 6719055634769754651}
+  - component: {fileID: 1914293369766464445}
+  - component: {fileID: 5050283637187589525}
   m_Layer: 0
   m_Name: Tower_Frost
   m_TagString: Untagged
@@ -302,13 +304,49 @@ MonoBehaviour:
   syncInterval: 0
   ownerPlayerId: -1
   level: 1
-  hp: 100
-  maxHp: 100
-  attackInterval: 0.5
-  damage: 25
-  projectileSpeed: 25
   firePoint: {fileID: 5672137742472672044}
   projectilePrefab: {fileID: 2177931460981595886, guid: f2a04e9c5daa28d45bb7610f52368c29, type: 3}
   enemiesInRange: []
   currentTarget: {fileID: 0}
   attackTimer: 0
+--- !u!114 &1914293369766464445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5893986318789320895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a48a578560a18d41bbe7029a54a1b3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMethod: 0
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+--- !u!114 &5050283637187589525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5893986318789320895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd298a0bab2fc0f438efa94e11dac1ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMethod: 0
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  initialAttributes:
+  - key: 2
+    value: 100
+  - key: 20
+    value: 1
+  - key: 21
+    value: 50
+  - key: 22
+    value: 20

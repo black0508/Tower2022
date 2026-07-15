@@ -4,13 +4,13 @@ using UnityEngine;
 namespace Tower
 {
     /// <summary>
-    /// 整局游戏阶段：准备 → 波次 → 波间 → 胜负。
+    /// 整局游戏阶段：准备 → 波前倒计时 → 波次 → 胜负。
     /// </summary>
     public enum GamePhase
     {
         Preparing,
+        PreWave,
         Wave,
-        BetweenWaves,
         Victory,
         Defeat,
     }
@@ -27,11 +27,15 @@ namespace Tower
         [SyncVar(hook = nameof(OnPhaseChanged))]
         public GamePhase phase = GamePhase.Preparing;
 
-        /// <summary>当前波次（1-based），0 表示尚未开战。</summary>
+        /// <summary>当前波次（1-based）；Preparing 时为 0。</summary>
         [SyncVar(hook = nameof(OnCurrentWaveChanged))]
         public int currentWave;
 
-        [SyncVar] public float betweenWavesTimer;
+        /// <summary>PreWave 剩余秒数。</summary>
+        [SyncVar] public float preWaveTimer;
+
+        /// <summary>本局已获得的全局 Mutation（只同步 ID）。</summary>
+        public readonly SyncList<int> activeMutationIds = new();
 
         /// <summary>总波次：服务端由 WaveDirector 写入，客户端通过 TargetRpc 或 RpcStartBattle 同步。</summary>
         public int totalWaves;
@@ -95,6 +99,26 @@ namespace Tower
         public void BroadcastStartBattle()
         {
             RpcStartBattle(totalWaves);
+        }
+
+        [Server]
+        public void AddMutation(MutationId id)
+        {
+            int v = (int)id;
+            for (int i = 0; i < activeMutationIds.Count; i++)
+                if (activeMutationIds[i] == v) return;
+
+            activeMutationIds.Add(v);
+            RecalculateAllCombatAttributes();
+            Debug.Log($"[Server] Mutation added: {id}");
+        }
+
+        [Server]
+        public void RecalculateAllCombatAttributes()
+        {
+            var all = FindObjectsOfType<AttributeComponent>();
+            for (int i = 0; i < all.Length; i++)
+                all[i].Recalculate();
         }
 
         // ===== SyncVar Hook → Event =====

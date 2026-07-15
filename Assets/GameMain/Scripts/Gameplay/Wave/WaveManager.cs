@@ -19,7 +19,6 @@ namespace Tower
         public int killedThisWave;
 
         float waveTimer;
-        float delayBeforeWaveTimer;
         bool spawnPhaseComplete;
         int waveIndex;
         Queue<ScheduledSpawn> spawnQueue;
@@ -61,7 +60,7 @@ namespace Tower
             GameEntry.Event.Unsubscribe(WaveSpawnEnemyEventArgs.EventId, OnSpawnScheduled);
         }
 
-        public void StartWave(int index, bool skipDelayBeforeWave = false)
+        public void StartWave(int index)
         {
             if (config == null || index < 0 || index >= config.waves.Length) return;
 
@@ -70,7 +69,6 @@ namespace Tower
             spawnedThisWave = 0;
             killedThisWave = 0;
             waveTimer = 0;
-            delayBeforeWaveTimer = skipDelayBeforeWave ? 0 : entry.delayBeforeWave;
             spawnPhaseComplete = false;
             spawnQueue.Clear();
 
@@ -106,12 +104,6 @@ namespace Tower
         public void ServerTick()
         {
             if (spawnPhaseComplete && killedThisWave >= spawnedThisWave) return;
-
-            if (delayBeforeWaveTimer > 0)
-            {
-                delayBeforeWaveTimer -= Time.deltaTime;
-                return;
-            }
 
             waveTimer += Time.deltaTime;
 

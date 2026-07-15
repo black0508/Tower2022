@@ -4,27 +4,31 @@ using UnityEngine;
 
 namespace Tower
 {
+    [RequireComponent(typeof(BuffHolder))]
+    [RequireComponent(typeof(AttributeComponent))]
     public class TowerUnit : NetworkBehaviour
     {
         [Header("同步变量")]
         [SyncVar] public int ownerPlayerId = -1;
         [SyncVar] public int level = 1;
-        [SyncVar] public int hp = 100;
-        [SyncVar] public int maxHp = 100;
-
-        [Header("属性配置")]
-        public float attackInterval = 1f;
-        public int damage = 25;
-        public float projectileSpeed = 20f;
 
         [Header("引用")]
         public Transform firePoint;
         public GameObject projectilePrefab;
 
-        [Header("运行状态")]
-        [SerializeField] private List<Enemy> enemiesInRange = new();
-        [SerializeField] private Enemy currentTarget;
-        [SerializeField] private float attackTimer;
+        [SerializeField] List<Enemy> enemiesInRange = new();
+        [SerializeField] Enemy currentTarget;
+        [SerializeField] float attackTimer;
+
+        AttributeComponent attribute;
+
+        void Awake() => attribute = GetComponent<AttributeComponent>();
+
+        public override void OnStartServer()
+        {
+            attribute.Recalculate();
+            attribute.InitHpFull();
+        }
 
         void OnTriggerEnter(Collider c)
         {
@@ -44,17 +48,20 @@ namespace Tower
         {
             if (!isServer) return;
 
-            enemiesInRange.RemoveAll(e => e == null || e.hp <= 0);
+            enemiesInRange.RemoveAll(e => e == null || !e.IsAlive);
 
-            if (currentTarget == null || currentTarget.hp <= 0 || !enemiesInRange.Contains(currentTarget))
+            if (currentTarget == null || !currentTarget.IsAlive || !enemiesInRange.Contains(currentTarget))
                 currentTarget = enemiesInRange.Count > 0 ? enemiesInRange[0] : null;
 
-            if (currentTarget != null) {
-                attackTimer += Time.deltaTime;
-                if (attackTimer >= attackInterval) {
-                    attackTimer = 0;
-                    Fire(currentTarget);
-                }
+            if (currentTarget == null) return;
+
+            attackTimer += Time.deltaTime;
+            float interval = attribute.GetFinal(AttributeKey.AttackInterval);
+            if (interval <= 0f) interval = 1f;
+            if (attackTimer >= interval)
+            {
+                attackTimer = 0f;
+                Fire(currentTarget);
             }
         }
 
@@ -70,7 +77,9 @@ namespace Tower
                 return;
             }
 
-            proj.ServerLaunch(target, damage, projectileSpeed, firePoint.position);
+            int damage = Mathf.RoundToInt(attribute.GetFinal(AttributeKey.Damage));
+            float projSpeed = attribute.GetFinal(AttributeKey.ProjectileSpeed);
+            proj.ServerLaunch(target, damage, projSpeed, firePoint.position, netIdentity);
             NetworkServer.Spawn(go);
         }
     }

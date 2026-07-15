@@ -58,11 +58,11 @@ namespace Tower
                 case GamePhase.Preparing:
                     TickPreparing();
                     break;
+                case GamePhase.PreWave:
+                    TickPreWave(deltaTime);
+                    break;
                 case GamePhase.Wave:
                     TickWave();
-                    break;
-                case GamePhase.BetweenWaves:
-                    TickBetweenWaves(deltaTime);
                     break;
             }
         }
@@ -71,7 +71,28 @@ namespace Tower
         {
             var pm = GameEntry.PlayerManager;
             if (pm != null && pm.AreAllPlayersReady())
-                TransitionTo(GamePhase.BetweenWaves);
+                BeginBattle();
+        }
+
+        /// <summary>全员 Ready 后开战：清槽位、同步、进入第 1 波 PreWave。</summary>
+        void BeginBattle()
+        {
+            Debug.Log($"[Server] Phase: {gameState.phase} -> {GamePhase.PreWave} (BeginBattle)");
+
+            GameEntry.Build?.ClearAllOccupancy();
+            gameState.BroadcastStartBattle();
+            gameState.currentWave = 1;
+            gameState.preWaveTimer = GetDelayBeforeWave(0);
+            gameState.phase = GamePhase.PreWave;
+        }
+
+        void TickPreWave(float deltaTime)
+        {
+            gameState.preWaveTimer -= deltaTime;
+            if (gameState.preWaveTimer > 0) return;
+
+            m_WaveManager?.StartWave(gameState.currentWave - 1);
+            TransitionTo(GamePhase.Wave);
         }
 
         void TickWave()
@@ -82,19 +103,14 @@ namespace Tower
             if (!m_WaveManager.IsCurrentWaveCleared) return;
 
             if (m_WaveManager.IsLastWave)
+            {
                 TransitionTo(GamePhase.Victory);
-            else
-                TransitionTo(GamePhase.BetweenWaves);
-        }
-
-        void TickBetweenWaves(float deltaTime)
-        {
-            gameState.betweenWavesTimer -= deltaTime;
-            if (gameState.betweenWavesTimer > 0) return;
+                return;
+            }
 
             gameState.currentWave++;
-            m_WaveManager?.StartWave(gameState.currentWave - 1, skipDelayBeforeWave: true);
-            TransitionTo(GamePhase.Wave);
+            gameState.preWaveTimer = GetDelayBeforeWave(gameState.currentWave - 1);
+            TransitionTo(GamePhase.PreWave);
         }
 
         void TransitionTo(GamePhase newPhase)
@@ -104,15 +120,6 @@ namespace Tower
 
             switch (newPhase)
             {
-                case GamePhase.BetweenWaves:
-                    gameState.betweenWavesTimer = GetDelayBeforeWave(gameState.currentWave);
-                    if (gameState.currentWave <= 0)
-                    {
-                        // 对局真正开始（全员 Ready → 开战）：清空上一局残留占用
-                        GameEntry.Build?.ClearAllOccupancy();
-                        gameState.BroadcastStartBattle();
-                    }
-                    break;
                 case GamePhase.Victory:
                     Debug.Log("[Server] === VICTORY ===");
                     break;

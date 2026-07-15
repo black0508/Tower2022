@@ -116,6 +116,7 @@ GameObject:
   - component: {fileID: 970699658179003421}
   - component: {fileID: 9132033740084243548}
   - component: {fileID: 6618876602971792633}
+  - component: {fileID: 5715600258107256442}
   m_Layer: 0
   m_Name: End
   m_TagString: Untagged
@@ -172,6 +173,23 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  hp: 10
-  maxHp: 10
   damagePerEnemy: 1
+--- !u!114 &5715600258107256442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4336668006424407784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd298a0bab2fc0f438efa94e11dac1ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMethod: 0
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  initialAttributes:
+  - key: 2
+    value: 10
