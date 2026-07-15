@@ -2,6 +2,7 @@ using Mirror;
 
 namespace Tower
 {
+    //全局buff
     public class MutationDef
     {
         public MutationId Id;

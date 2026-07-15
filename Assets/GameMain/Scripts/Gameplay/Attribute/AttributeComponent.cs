@@ -8,7 +8,6 @@ namespace Tower
     public class AttributeComponent : NetworkBehaviour
     {
         [Title("初始属性 (Base)")]
-        [InfoBox("敌：MaxHp / Speed / BaseDamage / GoldReward\n塔：MaxHp / AttackInterval / Damage / ProjectileSpeed\n基地：MaxHp\n注意：Damage(塔攻击) ≠ BaseDamage(敌撞家)", InfoMessageType.None)]
         [TableList(AlwaysExpanded = true, DrawScrollView = false)]
         [ValidateInput(nameof(ValidateInitialAttributes))]
         [SerializeField] AttributeEntry[] initialAttributes;
