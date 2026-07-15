@@ -128,8 +128,7 @@ namespace Tower
                 return;
             }
 
-            var go = Instantiate(args.EnemyPrefab, args.SpawnPosition, Quaternion.identity);
-            NetworkServer.Spawn(go);
+            GameEntry.NetworkPool.ServerSpawn(args.EnemyPrefab, args.SpawnPosition, Quaternion.identity);
             spawnedThisWave++;
         }
 

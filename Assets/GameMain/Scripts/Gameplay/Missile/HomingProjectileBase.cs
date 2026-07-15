@@ -24,11 +24,25 @@ namespace Tower
             serverTarget = target;
         }
 
+        protected override void ResetVisualState()
+        {
+            base.ResetVisualState();
+            lastKnownTargetPos = default;
+            hasLastKnownTargetPos = false;
+        }
+
+        protected override void ResetForSpawn()
+        {
+            base.ResetForSpawn();
+            serverTarget = null;
+            targetNetId = 0;
+        }
+
         protected override void UpdateMovement()
         {
             if (!TryGetTargetPos(out Vector3 targetPos))
             {
-                if (isServer) NetworkServer.Destroy(gameObject);
+                if (isServer) GameEntry.NetworkPool.ServerDespawn(gameObject);
                 return;
             }
 

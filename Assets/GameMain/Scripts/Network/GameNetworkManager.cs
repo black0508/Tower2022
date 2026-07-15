@@ -1,4 +1,5 @@
 using Mirror;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Tower
@@ -11,12 +12,59 @@ namespace Tower
         [Header("Custom")]
         [SerializeField] GameState gameStatePrefab;
 
+        // 运行时从 spawnPrefabs 拆出；默认注册只留下非池化对象
+        readonly List<GameObject> poolablePrefabs = new();
+
+        public override void Awake()
+        {
+            ExtractPoolablePrefabs();
+            base.Awake();
+        }
+
+        // 扫一遍所有可池化的网络对象，然后加入池化列表
+        void ExtractPoolablePrefabs()
+        {
+            poolablePrefabs.Clear();
+            for (int i = spawnPrefabs.Count - 1; i >= 0; i--)
+            {
+                var prefab = spawnPrefabs[i];
+                if (prefab == null) continue;
+                if (prefab.GetComponent<Enemy>() == null && prefab.GetComponent<ProjectileBase>() == null)
+                    continue;
+
+                poolablePrefabs.Add(prefab);
+                spawnPrefabs.RemoveAt(i);
+            }
+        }
+
         public override void OnStartServer()
         {
             autoCreatePlayer = false;
             base.OnStartServer();
             Debug.Log("[Server] Server started");
             SpawnGameState();
+        }
+
+        public override void OnStartClient()
+        {
+            base.OnStartClient();
+            RegisterPoolablePrefabs();
+        }
+
+        void RegisterPoolablePrefabs()
+        {
+            var pool = GameEntry.NetworkPool;
+            if (pool == null)
+            {
+                Debug.LogError("[Client] NetworkObjectPool not initialized.");
+                return;
+            }
+
+            foreach (var prefab in poolablePrefabs)
+            {
+                if (prefab == null) continue;
+                pool.RegisterClientHandlers(prefab);
+            }
         }
 
         void SpawnGameState()

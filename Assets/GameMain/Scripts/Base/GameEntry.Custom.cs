@@ -23,6 +23,9 @@ namespace Tower
         /// <summary>玩家管理（列表 / Spawn / Ready）</summary>
         public static PlayerManagerComponent PlayerManager { get; private set; }
 
+        /// <summary>联网对象池（子弹 / 怪物）</summary>
+        public static NetworkObjectPool NetworkPool { get; private set; }
+
         /// <summary>当前进程的游戏配置（由 Client/Server 子类在 Awake 时注册）</summary>
         public static GameConfigComponent GameConfig { get; private set; }
 
@@ -65,6 +68,7 @@ namespace Tower
             NetWork = FindObjectOfType<GameNetworkManager>();
             Build = UnityGameFramework.Runtime.GameEntry.GetComponent<BuildComponent>();
             PlayerManager = UnityGameFramework.Runtime.GameEntry.GetComponent<PlayerManagerComponent>();
+            NetworkPool = new NetworkObjectPool();
         }
     }
 }

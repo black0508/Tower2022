@@ -37,6 +37,6 @@ MonoBehaviour:
   - delayBeforeWave: 1
     spawns:
     - spawnTime: 0
-      spawnCount: 1
-      spawnInterval: 1
+      spawnCount: 10
+      spawnInterval: 0.5
       enemyPrefab: {fileID: 2159915181064162888, guid: 4f2c77d7fd1fbb448b8c6a28efa2bbf3, type: 3}

@@ -169,6 +169,19 @@ namespace Tower
             ClampHpToMax();
         }
 
+        /// <summary>池化复用：清空同步表与运行态，用初始 Base 重新播种。</summary>
+        public void ResetForSpawn()
+        {
+            modifierBuffer.Clear();
+            syncedAttributes.Clear();
+
+            foreach (var attr in attributes.Values)
+                attr.Set(attr.Base);
+
+            Recalculate();
+            InitHpFull();
+        }
+
         void CollectModifiersOntoBlackboard()
         {
             modifierBuffer.Clear();

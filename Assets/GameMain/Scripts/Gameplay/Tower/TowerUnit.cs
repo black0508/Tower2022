@@ -68,19 +68,22 @@ namespace Tower
         [Server]
         void Fire(Enemy target)
         {
-            var go = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-            var proj = go.GetComponent<ProjectileBase>();
-            if (proj == null)
-            {
-                Debug.LogError($"[Server] {projectilePrefab.name} missing ProjectileBase.");
-                Destroy(go);
-                return;
-            }
-
             int damage = Mathf.RoundToInt(attribute.GetFinal(AttributeKey.Damage));
             float projSpeed = attribute.GetFinal(AttributeKey.ProjectileSpeed);
-            proj.ServerLaunch(target, damage, projSpeed, firePoint.position, netIdentity);
-            NetworkServer.Spawn(go);
+            var source = netIdentity;
+
+            GameEntry.NetworkPool.ServerSpawn(
+                projectilePrefab, firePoint.position, Quaternion.identity,
+                beforeSpawn: go =>
+                {
+                    var proj = go.GetComponent<ProjectileBase>();
+                    if (proj == null)
+                    {
+                        Debug.LogError($"[Server] {projectilePrefab.name} missing ProjectileBase.");
+                        return;
+                    }
+                    proj.ServerLaunch(target, damage, projSpeed, firePoint.position, source);
+                });
         }
     }
 }

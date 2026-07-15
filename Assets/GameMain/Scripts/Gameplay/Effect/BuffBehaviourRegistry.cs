@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GameFramework;
 
 namespace Tower
 {
@@ -7,7 +8,7 @@ namespace Tower
     {
         static readonly Dictionary<BuffDefId, Func<BuffBehaviour>> Factories = new()
         {
-            // Day3: { BuffDefId.Slow, () => new SlowBuff() },
+            { BuffDefId.Slow, () => ReferencePool.Acquire<SlowBuff>() },
         };
 
         public static void Register(BuffDefId id, Func<BuffBehaviour> factory) =>

@@ -1,3 +1,4 @@
+using GameFramework;
 using UnityEngine;
 
 namespace Tower
@@ -15,6 +16,8 @@ namespace Tower
             if (Vector3.Distance(transform.position, serverTarget.transform.position) >= HitDistance)
                 return false;
 
+            float slowPercent = slowMultiplier - 1f; // 0.6 → -0.4
+
             var hits = Physics.OverlapSphere(transform.position, aoeRadius, ~0);
             foreach (var h in hits)
             {
@@ -30,7 +33,14 @@ namespace Tower
                     critChance = 0.05f,
                 };
                 enemy.TakeDamage(ref info);
-                // Day3: AddBuff(new SlowBuff())
+
+                // 伤害可能致死；只给存活者挂减速，避免给正在销毁的敌人加 Buff
+                if (enemy.IsAlive && enemy.TryGetComponent<BuffHolder>(out var holder))
+                {
+                    var buff = ReferencePool.Acquire<SlowBuff>();
+                    buff.percent = slowPercent;
+                    holder.AddBuff(buff, slowDuration);
+                }
             }
             return true;
         }

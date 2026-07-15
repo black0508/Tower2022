@@ -43,5 +43,8 @@ namespace Tower
         [HorizontalGroup("Row")]
         [LabelText("值"), LabelWidth(30)]
         public float value;
+
+        // Mirror SyncList 抽屉用 ToString 画每一项；不重写只会显示类型名
+        public override string ToString() => $"{key} = {value}";
     }
 }

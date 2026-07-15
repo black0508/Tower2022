@@ -26,6 +26,8 @@ namespace Tower
 
         public override void OnStartClient()
         {
+            // 只复位表现，不能走 ResetForSpawn：会清掉已同步的 SyncVar（如 targetNetId）
+            ResetVisualState();
             if (!isServer)
                 transform.position = startPos;
         }
@@ -35,7 +37,7 @@ namespace Tower
             lifetime += Time.deltaTime;
             if (lifetime > maxLifetime || Vector3.Distance(transform.position, startPos) > maxRange)
             {
-                if (isServer) NetworkServer.Destroy(gameObject);
+                if (isServer) GameEntry.NetworkPool.ServerDespawn(gameObject);
                 return;
             }
 
@@ -46,18 +48,38 @@ namespace Tower
             if (isServer && CheckServerHit())
             {
                 RpcConfirmHit();
-                NetworkServer.Destroy(gameObject);
+                GameEntry.NetworkPool.ServerDespawn(gameObject);
             }
         }
 
         [Server]
         public void ServerLaunch(Enemy target, int launchDamage, float launchSpeed, Vector3 launchPos, NetworkIdentity source)
         {
+            ResetForSpawn();
             damage = launchDamage;
             speed = launchSpeed;
             startPos = launchPos;
             sourceNetIdentity = source;
             OnServerLaunch(target);
+        }
+
+        /// <summary>客户端/复用时复位表现（mesh、拖尾、lifetime）。</summary>
+        protected virtual void ResetVisualState()
+        {
+            lifetime = 0f;
+            hasHitLocally = false;
+            if (meshRenderer != null) meshRenderer.enabled = true;
+            if (trail != null)
+            {
+                trail.Clear();
+                trail.emitting = true;
+            }
+        }
+
+        /// <summary>服务端发射前完整复位（含追踪缓存 / SyncVar 占位）。</summary>
+        protected virtual void ResetForSpawn()
+        {
+            ResetVisualState();
         }
 
         protected abstract void OnServerLaunch(Enemy target);

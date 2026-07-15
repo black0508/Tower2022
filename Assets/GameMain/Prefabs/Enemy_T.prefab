@@ -324,7 +324,7 @@ MonoBehaviour:
   syncInterval: 0
   initialAttributes:
   - key: 2
-    value: 100
+    value: 200
   - key: 10
     value: 3
   - key: 11

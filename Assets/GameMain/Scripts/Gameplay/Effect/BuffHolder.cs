@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GameFramework;
 using Mirror;
 using UnityEngine;
 
@@ -33,6 +34,8 @@ namespace Tower
                 existing.stackCount = buff.stackCount;
                 SyncSnapshotAt(i, existing);
                 attrs?.Recalculate();
+                // 同 DefId 只刷新时长，归还未挂上的新实例
+                ReferencePool.Release(buff);
                 return;
             }
 
@@ -68,6 +71,24 @@ namespace Tower
             serverBuffs.RemoveAt(idx);
             if (idx < buffSnapshots.Count)
                 buffSnapshots.RemoveAt(idx);
+            ReferencePool.Release(buff);
+            attrs?.Recalculate();
+        }
+
+        /// <summary>池化复用：清掉所有 Buff（服务端表 + 同步快照），并归还引用池。</summary>
+        public void ClearAll()
+        {
+            if (!isServer) return;
+
+            for (int i = 0; i < serverBuffs.Count; i++)
+            {
+                var b = serverBuffs[i];
+                if (b == null) continue;
+                b.OnRemove(isServer: true);
+                ReferencePool.Release(b);
+            }
+            serverBuffs.Clear();
+            buffSnapshots.Clear();
             attrs?.Recalculate();
         }
 
@@ -119,6 +140,11 @@ namespace Tower
                 OnClientBuffAdd(i);
         }
 
+        public override void OnStopServer()
+        {
+            ClearAll();
+        }
+
         public override void OnStopClient()
         {
             buffSnapshots.OnAdd -= OnClientBuffAdd;
@@ -126,7 +152,11 @@ namespace Tower
             buffSnapshots.OnSet -= OnClientBuffSet;
 
             foreach (var b in clientBuffs)
-                b?.OnRemove(isServer: false);
+            {
+                if (b == null) continue;
+                b.OnRemove(isServer: false);
+                ReferencePool.Release(b);
+            }
             clientBuffs.Clear();
         }
 
@@ -158,7 +188,12 @@ namespace Tower
         void OnClientBuffRemove(int idx, BuffSnapshot oldSnap)
         {
             if (idx < 0 || idx >= clientBuffs.Count) return;
-            clientBuffs[idx]?.OnRemove(isServer: false);
+            var buff = clientBuffs[idx];
+            if (buff != null)
+            {
+                buff.OnRemove(isServer: false);
+                ReferencePool.Release(buff);
+            }
             clientBuffs.RemoveAt(idx);
         }
 

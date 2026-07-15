@@ -36,6 +36,7 @@ namespace Tower
 
         public override void OnStartServer()
         {
+            ResetRuntimeState();
             BindSpeedAttribute();
             InitCombatStats();
             SetupPathfinding();
@@ -53,13 +54,26 @@ namespace Tower
                 agent.enabled = false;
                 BindSpeedAttribute();
             }
-            CacheOriginalColor();
+            SetSlowVisual(false);
         }
 
         public override void OnStopClient()
         {
             if (!isServer)
                 UnbindSpeedAttribute();
+        }
+
+        void ResetRuntimeState()
+        {
+            reachedBase = false;
+            dead = false;
+            if (agent != null)
+                agent.ResetPath();
+
+            // 先清 Buff，再重播种属性，避免 Recalculate 仍吃到上一条命的 modifier
+            buffHolder.ClearAll();
+            attribute.ResetForSpawn();
+            SetSlowVisual(false);
         }
 
         void Update()
@@ -137,7 +151,7 @@ namespace Tower
                 baseDmg: baseDmg,
                 pos: transform.position,
                 netId: netId));
-            NetworkServer.Destroy(gameObject);
+            GameEntry.NetworkPool.ServerDespawn(gameObject);
         }
 
         [Server]
@@ -173,7 +187,7 @@ namespace Tower
                 baseDmg: 0,
                 pos: transform.position,
                 netId: netId));
-            NetworkServer.Destroy(gameObject);
+            GameEntry.NetworkPool.ServerDespawn(gameObject);
         }
 
         public void SetSlowVisual(bool slowed)
