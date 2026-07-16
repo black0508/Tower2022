@@ -6,6 +6,7 @@ namespace Tower
 {
     /// <summary>
     /// 战斗主界面：金币 / 波次 / 基地生命 + 建造栏。
+    /// Voting 阶段动态打开独立 VotingForm。
     /// </summary>
     public class GamingForm : UGUIForm
     {
@@ -45,8 +46,10 @@ namespace Tower
             GameEntry.Event.Subscribe(CurrentWaveChangedEventArgs.EventId, OnCurrentWaveChanged);
 
             var state = GameEntry.State;
+            var phase = state != null ? state.phase : GamePhase.Preparing;
             RefreshGold(state != null ? state.sharedGold : 0);
-            RefreshWaveForPhase(state != null ? state.phase : GamePhase.Preparing);
+            RefreshWaveForPhase(phase);
+            SyncVotingForm(phase);
             if (GameEntry.HomeBase != null)
             {
                 var attrs = GameEntry.HomeBase.GetComponent<AttributeComponent>();
@@ -64,6 +67,7 @@ namespace Tower
             GameEntry.Event.Unsubscribe(CurrentWaveChangedEventArgs.EventId, OnCurrentWaveChanged);
 
             statusPanel?.Clear();
+            CloseVotingForm();
 
             if (buildBar != null)
                 buildBar.Clear();
@@ -93,12 +97,35 @@ namespace Tower
         {
             if (e is not GamePhaseChangedEventArgs args) return;
             RefreshWaveForPhase(args.Phase);
+            SyncVotingForm(args.Phase);
         }
 
         void OnCurrentWaveChanged(object sender, GameEventArgs e)
         {
             if (e is not CurrentWaveChangedEventArgs) return;
             RefreshWaveForPhase(GameEntry.State != null ? GameEntry.State.phase : GamePhase.Preparing);
+        }
+
+        static void SyncVotingForm(GamePhase phase)
+        {
+            if (GameEntry.UI == null) return;
+
+            if (phase == GamePhase.Voting)
+            {
+                if (!GameEntry.UI.HasUIForm(UIFormId.VotingForm))
+                    GameEntry.UI.OpenUIForm(UIFormId.VotingForm);
+                return;
+            }
+
+            CloseVotingForm();
+        }
+
+        static void CloseVotingForm()
+        {
+            if (GameEntry.UI == null) return;
+            var form = GameEntry.UI.GetUIForm(UIFormId.VotingForm);
+            if (form != null)
+                GameEntry.UI.CloseUIForm(form);
         }
 
         void RefreshGold(int gold)
@@ -117,6 +144,17 @@ namespace Tower
             }
 
             var state = GameEntry.State;
+            if (phase == GamePhase.Voting)
+            {
+                if (waveText != null)
+                {
+                    int w = state != null ? state.currentWave : 0;
+                    int total = state?.TotalWaves ?? 0;
+                    waveText.text = total > 0 ? $"投票中 · 第 {w}/{total} 波后" : $"投票中 · 第 {w} 波后";
+                }
+                return;
+            }
+
             RefreshWave(state != null ? state.currentWave : 0);
         }
 

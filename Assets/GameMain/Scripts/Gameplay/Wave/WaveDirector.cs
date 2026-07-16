@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GameFramework.Event;
 using Mirror;
 using UnityEngine;
@@ -10,6 +11,8 @@ namespace Tower
     /// </summary>
     public class WaveDirector : MonoBehaviour
     {
+        const float VoteDuration = 30f;
+
         GameState gameState;
         WaveManager m_WaveManager;
 
@@ -64,6 +67,9 @@ namespace Tower
                 case GamePhase.Wave:
                     TickWave();
                     break;
+                case GamePhase.Voting:
+                    TickVoting(deltaTime);
+                    break;
             }
         }
 
@@ -108,6 +114,89 @@ namespace Tower
                 return;
             }
 
+            if (ShouldVoteAfter(gameState.currentWave) && TryStartVote())
+            {
+                TransitionTo(GamePhase.Voting);
+                return;
+            }
+
+            AdvanceToNextPreWave();
+        }
+
+        bool ShouldVoteAfter(int waveNumber)
+        {
+            var config = m_WaveManager?.config;
+            int idx = waveNumber - 1;
+            return config != null && idx >= 0 && idx < config.waves.Length
+                && config.waves[idx].voteAfterWave;
+        }
+
+        bool TryStartVote()
+        {
+            var pool = new List<int>();
+            foreach (var id in MutationCatalog.All)
+            {
+                int v = (int)id;
+                if (!gameState.activeMutationIds.Contains(v))
+                    pool.Add(v);
+            }
+            if (pool.Count == 0) return false;
+
+            gameState.voteOptions.Clear();
+            int take = Mathf.Min(3, pool.Count);
+            for (int i = 0; i < take; i++)
+            {
+                int pick = Random.Range(0, pool.Count);
+                gameState.voteOptions.Add(pool[pick]);
+                pool.RemoveAt(pick);
+            }
+
+            gameState.playerVotes.Clear();
+            gameState.voteTimer = VoteDuration;
+            return true;
+        }
+
+        void TickVoting(float dt)
+        {
+            gameState.voteTimer -= dt;
+
+            bool timeUp = gameState.voteTimer <= 0f;
+            bool allVoted = AllActivePlayersVoted();
+            if (!timeUp && !allVoted) return;
+
+            int winnerOption = Tally();
+            if (winnerOption >= 0 && winnerOption < gameState.voteOptions.Count)
+                gameState.AddMutation((MutationId)gameState.voteOptions[winnerOption]);
+
+            gameState.voteOptions.Clear();
+            gameState.playerVotes.Clear();
+            AdvanceToNextPreWave();
+        }
+
+        bool AllActivePlayersVoted()
+        {
+            var pm = GameEntry.PlayerManager;
+            int players = pm?.Players.Count ?? 0;
+            return players > 0 && gameState.playerVotes.Count >= players;
+        }
+
+        int Tally()
+        {
+            int n = gameState.voteOptions.Count;
+            if (n == 0) return -1;
+
+            var counts = new int[n];
+            foreach (var kv in gameState.playerVotes)
+                if (kv.Value >= 0 && kv.Value < n) counts[kv.Value]++;
+
+            int best = 0;
+            for (int i = 1; i < n; i++)
+                if (counts[i] > counts[best]) best = i;
+            return best;
+        }
+
+        void AdvanceToNextPreWave()
+        {
             gameState.currentWave++;
             gameState.preWaveTimer = GetDelayBeforeWave(gameState.currentWave - 1);
             TransitionTo(GamePhase.PreWave);

@@ -63,6 +63,7 @@ namespace Tower
                     break;
 
                 case GamePhase.Wave:
+                case GamePhase.Voting:
                     gameObject.SetActive(false);
                     break;
 

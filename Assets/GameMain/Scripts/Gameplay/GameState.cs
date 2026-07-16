@@ -11,6 +11,7 @@ namespace Tower
         Preparing,
         PreWave,
         Wave,
+        Voting,
         Victory,
         Defeat,
     }
@@ -36,6 +37,15 @@ namespace Tower
 
         /// <summary>本局已获得的全局 Mutation（只同步 ID）。</summary>
         public readonly SyncList<int> activeMutationIds = new();
+
+        /// <summary>本轮投票的候选 MutationId（服务端随机挑，双端展示）。</summary>
+        public readonly SyncList<int> voteOptions = new();
+
+        /// <summary>playerId → 所投选项下标；覆盖即改票。</summary>
+        public readonly SyncDictionary<int, int> playerVotes = new();
+
+        /// <summary>投票剩余秒数（服务端递减，UI 直接读）。</summary>
+        [SyncVar] public float voteTimer;
 
         /// <summary>总波次：服务端由 WaveDirector 写入，客户端通过 TargetRpc 或 RpcStartBattle 同步。</summary>
         public int totalWaves;

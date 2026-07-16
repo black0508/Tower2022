@@ -11,6 +11,9 @@ namespace Tower
     public enum MutationId
     {
         None = 0,
+        TowerDamageUp = 2001, // 属性式：塔伤害 +25%
+        EnemySlow = 2002,     // 属性式：敌人移速 -20%
+        TowerCritUp = 2003,   // 伤害钩子式：暴击率 +10%
     }
 
     public enum MutationTarget

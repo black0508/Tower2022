@@ -69,6 +69,7 @@ namespace Tower
             Build = UnityGameFramework.Runtime.GameEntry.GetComponent<BuildComponent>();
             PlayerManager = UnityGameFramework.Runtime.GameEntry.GetComponent<PlayerManagerComponent>();
             NetworkPool = new NetworkObjectPool();
+            MutationCatalog.EnsureRegistered();
         }
     }
 }

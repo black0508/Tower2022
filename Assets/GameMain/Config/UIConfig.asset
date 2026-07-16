@@ -40,7 +40,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 2
+      Data: 3
     - Name: 
       Entry: 7
       Data: 
@@ -80,6 +80,33 @@ MonoBehaviour:
     - Name: AssetName
       Entry: 1
       Data: GamingForm
+    - Name: GroupName
+      Entry: 1
+      Data: Default
+    - Name: AllowMultiInstance
+      Entry: 5
+      Data: false
+    - Name: PauseCoveredUIForm
+      Entry: 5
+      Data: true
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 101
+    - Name: $v
+      Entry: 7
+      Data: Tower.UIConfigData, Assembly-CSharp
+    - Name: AssetName
+      Entry: 1
+      Data: VotingForm
     - Name: GroupName
       Entry: 1
       Data: Default

@@ -25,7 +25,7 @@ namespace Tower
                 {
                     var mut = MutationRegistry.Get(ids[i]);
                     if (mut == null) continue;
-                    mut.OnDamageDealt(ref info);
+                    if (mut.Matches(info.source)) mut.OnDamageDealt(ref info);
                     if (mut.Matches(info.target)) mut.OnDamageTaken(ref info);
                 }
                 if (info.cancelled) return;

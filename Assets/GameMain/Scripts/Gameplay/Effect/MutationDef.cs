@@ -7,6 +7,7 @@ namespace Tower
     {
         public MutationId Id;
         public string Name;
+        public string Description;
         public MutationTarget Filter = MutationTarget.All;
 
         public virtual void CollectModifiers(IStatModifierBuffer buffer) { }

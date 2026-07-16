@@ -8,5 +8,6 @@ namespace Tower{
 
         GamingForm = 100,
 
+        VotingForm = 101,
     }
 }

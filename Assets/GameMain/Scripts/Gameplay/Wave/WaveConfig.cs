@@ -19,6 +19,9 @@ namespace Tower
         [LabelText("波前等待"), SuffixLabel("秒")]
         public float delayBeforeWave = 3f;
 
+        [LabelText("清空后触发投票")]
+        public bool voteAfterWave;
+
         [LabelText("刷怪时间线")]
         [TableList(ShowIndexLabels = true, ShowPaging = false)]
         public WaveSpawnElement[] spawns;

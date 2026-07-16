@@ -46,6 +46,16 @@ namespace Tower
             isReady = ready;
         }
 
+        [Command]
+        public void CmdVote(int optionIndex)
+        {
+            var state = GameEntry.State;
+            if (state == null || state.phase != GamePhase.Voting) return;
+            if (optionIndex < 0 || optionIndex >= state.voteOptions.Count) return;
+
+            state.playerVotes[playerId] = optionIndex;
+        }
+
         void OnReadyChanged(bool oldVal, bool newVal)
         {
             GameEntry.Event.Fire(this, PlayerReadyChangedEventArgs.Create(playerId, newVal));

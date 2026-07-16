@@ -124,6 +124,10 @@ namespace Tower
         {
             if (GameEntry.UI == null) return;
 
+            var voting = GameEntry.UI.GetUIForm(UIFormId.VotingForm);
+            if (voting != null)
+                GameEntry.UI.CloseUIForm(voting);
+
             var form = GameEntry.UI.GetUIForm(UIFormId.GamingForm);
             if (form != null)
                 GameEntry.UI.CloseUIForm(form);
