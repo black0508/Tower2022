@@ -16,6 +16,7 @@ namespace Tower
         Camera mainCam;
         BuildState buildState = BuildState.Idle;
         int selectedTowerConfigId = -1;
+        uint selectedActionTowerNetId;
 
         public void InitLocal(GamePlayer localPlayer)
         {
@@ -45,9 +46,26 @@ namespace Tower
             if (Input.GetKeyDown(KeyCode.B))
                 ToggleBuildMode();
 
+            if (Input.GetMouseButtonDown(1) && !IsPointerOverUI())
+            {
+                ClearTowerActionSelection();
+
+                if (buildState == BuildState.Building)
+                    ExitBuildMode();
+                return;
+            }
+
+            // 左键选中场上已建成的塔 → 打开升级/出售面板；点空处则取消选中
+            if (Input.GetMouseButtonDown(0) && !IsPointerOverUI())
+            {
+                if (TrySelectTowerAtMouse())
+                    return;
+                ClearTowerActionSelection();
+            }
+
             if (buildState != BuildState.Building) return;
 
-            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1))
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
                 ExitBuildMode();
                 return;
@@ -109,7 +127,7 @@ namespace Tower
 
         void UpdateHover()
         {
-            if (RaycastMouse(out var hit))
+            if (RaycastMouse(out var hit, useSlotMask: true))
                 GameEntry.Build?.SetHoverHighlight(hit.collider.GetComponentInParent<BuildSlot>());
             else
                 GameEntry.Build?.SetHoverHighlight(null);
@@ -123,7 +141,7 @@ namespace Tower
                 return;
             }
 
-            if (!RaycastMouse(out var hit))
+            if (!RaycastMouse(out var hit, useSlotMask: true))
             {
                 Debug.Log("[Build] Left click but raycast hit nothing.");
                 return;
@@ -146,16 +164,41 @@ namespace Tower
             player.CmdBuildTower(slot.netId, selectedTowerConfigId);
         }
 
-        bool RaycastMouse(out RaycastHit hit)
+        bool TrySelectTowerAtMouse()
+        {
+            if (mainCam == null) return false;
+            if (!RaycastMouse(out var hit, useSlotMask: false)) return false;
+
+            var tower = hit.collider.GetComponentInParent<TowerUnit>();
+            if (tower == null) return false;
+
+            selectedActionTowerNetId = tower.netId;
+            GameEntry.Event.Fire(this, TowerActionSelectedEventArgs.Create(tower.netId, tower.towerConfigId, tower.level));
+            return true;
+        }
+
+        void ClearTowerActionSelection()
+        {
+            if (selectedActionTowerNetId == 0) return;
+            selectedActionTowerNetId = 0;
+            GameEntry.Event.Fire(this, TowerActionSelectedEventArgs.Create(0, 0, 0));
+        }
+
+        bool RaycastMouse(out RaycastHit hit, bool useSlotMask)
         {
             hit = default;
             if (mainCam == null) return false;
 
-            int mask = GameEntry.Build != null ? (int)GameEntry.Build.SlotMask : 0;
-            if (mask == 0) mask = Physics.DefaultRaycastLayers;
+            int mask = Physics.DefaultRaycastLayers;
+            if (useSlotMask && GameEntry.Build != null)
+            {
+                int slotMask = (int)GameEntry.Build.SlotMask;
+                if (slotMask != 0) mask = slotMask;
+            }
 
             var ray = mainCam.ScreenPointToRay(Input.mousePosition);
-            return Physics.Raycast(ray, out hit, 1000f, mask);
+            // 忽略触发器：塔的射程检测是大范围 Trigger，否则点射程内空地会误命中塔
+            return Physics.Raycast(ray, out hit, 1000f, mask, QueryTriggerInteraction.Ignore);
         }
 
         static bool IsPointerOverUI()

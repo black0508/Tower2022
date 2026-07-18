@@ -21,6 +21,9 @@ namespace Tower
         [Header("Build Bar")]
         [SerializeField] BuildBarUI buildBar;
 
+        [Header("Tower Action")]
+        [SerializeField] TowerActionPanelUI towerActionPanel;
+
         protected override void OnOpen(object userData)
         {
             base.OnOpen(userData);
@@ -38,6 +41,8 @@ namespace Tower
                 buildBar.gameObject.SetActive(false);
                 buildBar.Init();
             }
+
+            towerActionPanel?.Init();
 
             GameEntry.Event.Subscribe(SharedGoldChangedEventArgs.EventId, OnSharedGoldChanged);
             GameEntry.Event.Subscribe(HomeBaseHpChangedEventArgs.EventId, OnHomeBaseHpChanged);
@@ -67,6 +72,7 @@ namespace Tower
             GameEntry.Event.Unsubscribe(CurrentWaveChangedEventArgs.EventId, OnCurrentWaveChanged);
 
             statusPanel?.Clear();
+            towerActionPanel?.Clear();
             CloseVotingForm();
 
             if (buildBar != null)

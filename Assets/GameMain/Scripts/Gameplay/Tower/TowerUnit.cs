@@ -9,6 +9,7 @@ namespace Tower
     public class TowerUnit : NetworkBehaviour
     {
         [Header("同步变量")]
+        [SyncVar] public int towerConfigId;
         [SyncVar] public int ownerPlayerId = -1;
         [SyncVar] public int level = 1;
 
@@ -22,12 +23,35 @@ namespace Tower
 
         AttributeComponent attribute;
 
+        public AttributeComponent Attribute => attribute;
+
         void Awake() => attribute = GetComponent<AttributeComponent>();
 
         public override void OnStartServer()
         {
-            attribute.Recalculate();
+            ServerApplyLevel(level);
             attribute.InitHpFull();
+        }
+
+        /// <summary>应用指定等级的配置效果，最后统一 Recalculate 一次。升级唯一扩展点。</summary>
+        [Server]
+        public void ServerApplyLevel(int lvl)
+        {
+            var cfg = GameEntry.GameConfig?.TowerConfig;
+            if (cfg != null && cfg.TryGetLevel(towerConfigId, lvl, out var levelDef) && levelDef.effects != null)
+            {
+                foreach (var eff in levelDef.effects)
+                    eff?.Apply(this);
+            }
+            attribute.Recalculate();
+        }
+
+        /// <summary>升一级并应用该级效果（保留当前 HP，Recalculate 内已 Clamp）。</summary>
+        [Server]
+        public void ServerUpgrade()
+        {
+            level++;
+            ServerApplyLevel(level);
         }
 
         void OnTriggerEnter(Collider c)

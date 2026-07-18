@@ -37,6 +37,20 @@ namespace Tower
             }
         }
 
+        /// <summary>仅服务端：按塔 netId 清空对应槽位占用。</summary>
+        public void ServerClearSlotByTowerNetId(uint towerNetId)
+        {
+            if (towerNetId == 0) return;
+            foreach (var slot in GetAllSlots())
+            {
+                if (slot != null && slot.occupiedByTowerNetId == towerNetId)
+                {
+                    slot.occupiedByTowerNetId = 0;
+                    return;
+                }
+            }
+        }
+
         // ===== 仅客户端调用 =====
 
         public void HighlightAllBuildable()

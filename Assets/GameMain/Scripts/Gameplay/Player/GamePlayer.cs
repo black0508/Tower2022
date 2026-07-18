@@ -98,11 +98,103 @@ namespace Tower
             }
 
             var towerGo = Instantiate(prefab, slot.transform.position + Vector3.up * 0.5f, Quaternion.identity);
+            var tower = towerGo.GetComponent<TowerUnit>();
+            if (tower != null)
+            {
+                tower.towerConfigId = towerConfigId;
+                tower.ownerPlayerId = playerId;
+            }
+
             NetworkServer.Spawn(towerGo);
 
             slot.occupiedByTowerNetId = towerGo.GetComponent<NetworkIdentity>().netId;
 
             Debug.Log($"[Server] Player {playerId} built towerConfigId={towerConfigId} at slot netId={slotNetId}");
+            TargetBuildResult(connectionToClient, true, null);
+        }
+
+        [Command]
+        public void CmdSellTower(uint towerNetId)
+        {
+            if (!NetworkServer.spawned.TryGetValue(towerNetId, out var identity))
+            {
+                TargetBuildResult(connectionToClient, false, "Tower not found");
+                return;
+            }
+
+            var tower = identity.GetComponent<TowerUnit>();
+            if (tower == null)
+            {
+                TargetBuildResult(connectionToClient, false, "NetId is not a TowerUnit");
+                return;
+            }
+
+            var cfg = GameEntry.GameConfig?.TowerConfig;
+            if (cfg == null || !cfg.TryGetLevel(tower.towerConfigId, tower.level, out var levelDef) || levelDef.sellPrice <= 0)
+            {
+                TargetBuildResult(connectionToClient, false, "Invalid sell price");
+                return;
+            }
+
+            if (GameEntry.State == null)
+            {
+                TargetBuildResult(connectionToClient, false, "GameState missing");
+                return;
+            }
+
+            GameEntry.Build?.ServerClearSlotByTowerNetId(towerNetId);
+            GameEntry.State.AddGold(levelDef.sellPrice);
+            NetworkServer.Destroy(tower.gameObject);
+
+            Debug.Log($"[Server] Player {playerId} sold towerConfigId={tower.towerConfigId} lv{tower.level} for {levelDef.sellPrice}");
+            TargetBuildResult(connectionToClient, true, null);
+        }
+
+        [Command]
+        public void CmdUpgradeTower(uint towerNetId)
+        {
+            if (!NetworkServer.spawned.TryGetValue(towerNetId, out var identity))
+            {
+                TargetBuildResult(connectionToClient, false, "Tower not found");
+                return;
+            }
+
+            var tower = identity.GetComponent<TowerUnit>();
+            if (tower == null)
+            {
+                TargetBuildResult(connectionToClient, false, "NetId is not a TowerUnit");
+                return;
+            }
+
+            var cfg = GameEntry.GameConfig?.TowerConfig;
+            if (cfg == null)
+            {
+                TargetBuildResult(connectionToClient, false, "TowerConfig missing");
+                return;
+            }
+
+            int next = tower.level + 1;
+            if (next > cfg.GetMaxLevel(tower.towerConfigId))
+            {
+                TargetBuildResult(connectionToClient, false, "Already max level");
+                return;
+            }
+
+            if (!cfg.TryGetLevel(tower.towerConfigId, next, out var levelDef))
+            {
+                TargetBuildResult(connectionToClient, false, "Unknown level config");
+                return;
+            }
+
+            if (GameEntry.State == null || !GameEntry.State.TrySpend(levelDef.cost))
+            {
+                TargetBuildResult(connectionToClient, false, "Not enough gold");
+                return;
+            }
+
+            tower.ServerUpgrade();
+
+            Debug.Log($"[Server] Player {playerId} upgraded tower netId={towerNetId} to lv{tower.level}");
             TargetBuildResult(connectionToClient, true, null);
         }
 
@@ -117,17 +209,21 @@ namespace Tower
         int GetTowerCost(int towerConfigId)
         {
             var cfg = GameEntry.GameConfig?.TowerConfig;
-            if (cfg != null && cfg.TryGetTower(towerConfigId, out var def))
-                return def.cost;
-            return 0;
+            return cfg != null && cfg.TryGetLevel(towerConfigId, 1, out var levelDef) ? levelDef.cost : 0;
         }
 
         GameObject GetTowerPrefab(int towerConfigId)
         {
+            return TryGetTowerDef(towerConfigId, out var def) ? def.prefab : null;
+        }
+
+        static bool TryGetTowerDef(int towerConfigId, out TowerDef def)
+        {
             var cfg = GameEntry.GameConfig?.TowerConfig;
-            if (cfg != null && cfg.TryGetTower(towerConfigId, out var def))
-                return def.prefab;
-            return null;
+            if (cfg != null && cfg.TryGetTower(towerConfigId, out def))
+                return true;
+            def = default;
+            return false;
         }
     }
 }

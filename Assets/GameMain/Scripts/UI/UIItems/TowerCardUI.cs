@@ -96,20 +96,20 @@ namespace Tower
         void RefreshFromConfig()
         {
             var cfg = GameEntry.GameConfig?.TowerConfig;
-            if (cfg == null || !cfg.TryGetTower(towerConfigId, out var def))
+            if (cfg == null || !cfg.TryGetTower(towerConfigId, out var def) || !cfg.TryGetLevel(towerConfigId, 1, out var levelDef))
             {
-                Debug.LogError($"[TowerCardUI] towerConfigId={towerConfigId} not found in TowerConfig.");
+                Debug.LogError($"[TowerCardUI] towerConfigId={towerConfigId} not found or missing level 1 in TowerConfig.");
                 m_Cost = int.MaxValue;
                 if (nameText != null) nameText.text = "?";
                 if (costText != null) costText.text = "-";
                 return;
             }
 
-            m_Cost = def.cost;
+            m_Cost = levelDef.cost;
             if (nameText != null)
                 nameText.text = string.IsNullOrEmpty(def.displayName) ? $"Tower {towerConfigId}" : def.displayName;
             if (costText != null)
-                costText.text = $"{def.cost}金币";
+                costText.text = $"{levelDef.cost}金币";
         }
     }
 }

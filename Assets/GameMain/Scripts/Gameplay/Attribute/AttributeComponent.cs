@@ -128,10 +128,10 @@ namespace Tower
         }
 
         [Server]
-        public void SetBase(AttributeKey key, float value)
+        public void SetBase(AttributeKey key, float value, bool recalculate = true)
         {
             GetOrCreate(key).SetBase(value);
-            Recalculate();
+            if (recalculate) Recalculate();
         }
 
         [Server]

@@ -45,16 +45,208 @@ MonoBehaviour:
       Data: 1
     - Name: $v
       Entry: 7
-      Data: Tower.TowerDef, Assembly-CSharp
+      Data: 2|Tower.TowerDef, Assembly-CSharp
     - Name: displayName
       Entry: 1
       Data: "\u666E\u901A\u5854"
-    - Name: cost
-      Entry: 3
-      Data: 50
     - Name: prefab
       Entry: 10
       Data: 0
+    - Name: levels
+      Entry: 7
+      Data: 3|System.Collections.Generic.List`1[[Tower.TowerLevelDef, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 4|Tower.TowerLevelDef, Assembly-CSharp
+    - Name: cost
+      Entry: 3
+      Data: 50
+    - Name: sellPrice
+      Entry: 3
+      Data: 30
+    - Name: effects
+      Entry: 7
+      Data: 5|System.Collections.Generic.List`1[[Tower.ITowerLevelEffect, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 6|Tower.SetTowerAttributesEffect, Assembly-CSharp
+    - Name: attributes
+      Entry: 7
+      Data: 7|Tower.AttributeEntry[], Assembly-CSharp
+    - Name: 
+      Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 2
+    - Name: value
+      Entry: 4
+      Data: 100
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 20
+    - Name: value
+      Entry: 4
+      Data: 0.25
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 21
+    - Name: value
+      Entry: 4
+      Data: 25
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 22
+    - Name: value
+      Entry: 4
+      Data: 20
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 8|Tower.TowerLevelDef, Assembly-CSharp
+    - Name: cost
+      Entry: 3
+      Data: 50
+    - Name: sellPrice
+      Entry: 3
+      Data: 60
+    - Name: effects
+      Entry: 7
+      Data: 9|System.Collections.Generic.List`1[[Tower.ITowerLevelEffect, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 10|Tower.SetTowerAttributesEffect, Assembly-CSharp
+    - Name: attributes
+      Entry: 7
+      Data: 11|Tower.AttributeEntry[], Assembly-CSharp
+    - Name: 
+      Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 2
+    - Name: value
+      Entry: 4
+      Data: 100
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 20
+    - Name: value
+      Entry: 4
+      Data: 0.1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 21
+    - Name: value
+      Entry: 4
+      Data: 30
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 22
+    - Name: value
+      Entry: 4
+      Data: 40
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -69,16 +261,208 @@ MonoBehaviour:
       Data: 2
     - Name: $v
       Entry: 7
-      Data: Tower.TowerDef, Assembly-CSharp
+      Data: 12|Tower.TowerDef, Assembly-CSharp
     - Name: displayName
       Entry: 1
       Data: "\u706B\u5854"
-    - Name: cost
-      Entry: 3
-      Data: 100
     - Name: prefab
       Entry: 10
       Data: 1
+    - Name: levels
+      Entry: 7
+      Data: 13|System.Collections.Generic.List`1[[Tower.TowerLevelDef, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 14|Tower.TowerLevelDef, Assembly-CSharp
+    - Name: cost
+      Entry: 3
+      Data: 100
+    - Name: sellPrice
+      Entry: 3
+      Data: 50
+    - Name: effects
+      Entry: 7
+      Data: 15|System.Collections.Generic.List`1[[Tower.ITowerLevelEffect, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 16|Tower.SetTowerAttributesEffect, Assembly-CSharp
+    - Name: attributes
+      Entry: 7
+      Data: 17|Tower.AttributeEntry[], Assembly-CSharp
+    - Name: 
+      Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 2
+    - Name: value
+      Entry: 4
+      Data: 100
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 20
+    - Name: value
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 21
+    - Name: value
+      Entry: 4
+      Data: 50
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 22
+    - Name: value
+      Entry: 4
+      Data: 20
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 18|Tower.TowerLevelDef, Assembly-CSharp
+    - Name: cost
+      Entry: 3
+      Data: 100
+    - Name: sellPrice
+      Entry: 3
+      Data: 100
+    - Name: effects
+      Entry: 7
+      Data: 19|System.Collections.Generic.List`1[[Tower.ITowerLevelEffect, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 20|Tower.SetTowerAttributesEffect, Assembly-CSharp
+    - Name: attributes
+      Entry: 7
+      Data: 21|Tower.AttributeEntry[], Assembly-CSharp
+    - Name: 
+      Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 2
+    - Name: value
+      Entry: 4
+      Data: 100
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 20
+    - Name: value
+      Entry: 4
+      Data: 0.75
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 21
+    - Name: value
+      Entry: 4
+      Data: 60
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: Tower.AttributeEntry, Assembly-CSharp
+    - Name: key
+      Entry: 3
+      Data: 22
+    - Name: value
+      Entry: 4
+      Data: 30
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 8
       Data: 
